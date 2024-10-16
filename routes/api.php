@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use \App\Http\Controllers\UserController;
-use App\Http\Controllers\AccesoRfidController;
+use App\Http\Controllers\AccesoRFIDController;
 use \App\Http\Controllers\EspaciosEstacionamientoController;
 
 Route::controller(UserController::class)->group(function () {
@@ -13,11 +13,11 @@ Route::controller(UserController::class)->group(function () {
     Route::get('/usuario/{rfid}', [UserController::class, 'show']);
 });
 
-Route::controller(AccesoRfidController::class)->group(function () {
-    Route::get('/accesos_rfid', [AccesoRfidController::class, 'index']);
-    Route::get('/usuarios/{rfid}/accesos', [AccesoRfidController::class, 'getAccesosPorUsuario']);
-    Route::post('/accesos_rfid/in', [AccesoRfidController::class, 'userIn']);
-    Route::put('/accesos_rfid/out/{rfid}', [AccesoRfidController::class, 'userOut']);
+Route::controller(AccesoRFIDController::class)->group(function () {
+    Route::get('/accesos_rfid', [AccesoRFIDController::class, 'index']);
+    Route::get('/usuarios/{rfid}/accesos', [AccesoRFIDController::class, 'getAccesosPorUsuario']);
+    Route::post('/accesos_rfid/in', [AccesoRFIDController::class, 'userIn']);
+    Route::put('/accesos_rfid/out/{rfid}', [AccesoRFIDController::class, 'userOut']);
 });
 
 Route::controller(EspaciosEstacionamientoController::class)->group(function () {
