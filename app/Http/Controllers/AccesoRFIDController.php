@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AccesoRfid;
+use App\Models\AccesoRFID;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -20,7 +20,7 @@ class AccesoRFIDController extends Controller
 
         if ($userExist) {
             // Registrar el acceso RFID con la referencia al usuario
-            $acceso = AccesoRfid::create([
+            $acceso = AccesoRFID::create([
                 'rfid_usuario' => $request->rfid_usuario,
                 'id_espacio' => $request->id_espacio,
                 'usuario_id' => $userExist->_id,  // Guardar el ObjectID del usuario
@@ -69,13 +69,13 @@ class AccesoRFIDController extends Controller
 
     public function index()
     {
-        $accesos = AccesoRfid::all();
+        $accesos = AccesoRFID::all();
         return response()->json($accesos);
     }
 
     public function show($id)
     {
-        $acceso = AccesoRfid::with('user')->find($id);
+        $acceso = AccesoRFID::with('user')->find($id);
 
         return response()->json($acceso);
     }
@@ -86,7 +86,7 @@ class AccesoRFIDController extends Controller
 
         if ($userExist) {
             $id = $userExist->_id;
-            $accesos = AccesoRfid::where('usuario_id', $id)
+            $accesos = AccesoRFID::where('usuario_id', $id)
                 ->orderBy('fecha_acceso', 'desc')
                 ->get();
 
