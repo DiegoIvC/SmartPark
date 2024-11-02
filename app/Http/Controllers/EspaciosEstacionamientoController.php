@@ -15,7 +15,7 @@ class EspaciosEstacionamientoController extends Controller
         'numero_espacio' => 'required|string|max:50',
         'estatus' => 'required|integer',
         'id_sensor' => 'required|integer',
-    ]);
+        ]);
 
         $espacio = EspacioEstacionamiento::create([
             'numero_espacio' => $request->numero_espacio,
@@ -48,24 +48,26 @@ class EspaciosEstacionamientoController extends Controller
         }
     }
 
-    public function sensorStatus(Request $request, $id){
+    public function sensorStatus(Request $request){
         $request->validate([
-            'distancia' => 'required|numeric'
+            'estado' => 'required|boolean',
+            'id_sensor' => 'required|integer'
         ]);
         //Recibir el id del sensor y buscar el espacio de estacionamiento en el que está localizado el sensor
-        $id = (int) $id;
-        $espacio = EspacioEstacionamiento::where('id_sensor', $id)->first();
-//        dd($espacio);
+        $id_sensor  = $request->id_sensor;
+//        dd($id_sensor);
+        $espacio = EspacioEstacionamiento::where('id_sensor', $id_sensor)->first();
+        //dd($espacio);
         if($espacio){
-            //NOTA, EL SENSOR ULTRASONICO RETORNA LA DISTANCIA EN CM
-            //POR LO QUE SE RECIBE LA DISTANCIA Y SE COMPARA
-            $distancia = $request->input('distancia');
-            if ($distancia >= 0 && $distancia <= 5) {
-                $estatus = 1; // Ocupado
-            } elseif ($distancia >= 6 && $distancia <= 10) {
-                $estatus = 2; // En espera
+            //NOTA, SE ENVIARÁ UN BOOLEANO DEPENDIENDO DEL ESTADO DEL SENSOR INFRARROJO
+            //POR LO QUE SE RECIBE EL BOOLEANO Y CAMBIA EL STATUS
+            $estado = $request->input('estado');
+            if ($estado === false) {
+                $estatus = 0; // libre
+            }elseif($estado === true) {
+            $estatus = 1; // ocupado
             } else {
-                $estatus = 0; // Libre
+                $estatus = 0; //libre
             }
             $espacio->estatus = $estatus;
             $espacio->save();
@@ -80,5 +82,4 @@ class EspaciosEstacionamientoController extends Controller
             ]);
         }
     }
-
 }

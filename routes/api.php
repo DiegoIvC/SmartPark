@@ -24,7 +24,7 @@ Route::controller(EspaciosEstacionamientoController::class)->group(function () {
     Route::post('/espacios', [EspaciosEstacionamientoController::class, 'store']);
     Route::get('/espacios', [EspaciosEstacionamientoController::class, 'index']);
     Route::get('/espacio/{id}', [EspaciosEstacionamientoController::class, 'show']);
-    Route::put('/espacio/sensor/{id}', [EspaciosEstacionamientoController::class, 'sensorStatus']);
+    Route::put('/espacio/sensor/', [EspaciosEstacionamientoController::class, 'sensorStatus']);
 });
 
 
