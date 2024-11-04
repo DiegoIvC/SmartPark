@@ -1,9 +1,8 @@
 import UIKit
 
-class SpeedingViewController: UIViewController {
+class AccessViewController: UIViewController {
 
     @IBOutlet weak var scrollView: UIScrollView!
-    var dynamicIslandView: UIView!
 
     // Propiedades para la paginación
     var currentPage: Int = 0

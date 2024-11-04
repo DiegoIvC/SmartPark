@@ -153,10 +153,10 @@
             </objects>
             <point key="canvasLocation" x="131.16279069767441" y="-35.407725321888414"/>
         </scene>
-        <!--Speeding View Controller-->
+        <!--Access View Controller-->
         <scene sceneID="daK-Y2-5uY">
             <objects>
-                <viewController id="g3e-m6-eZ2" customClass="SpeedingViewController" customModule="smartpark" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="g3e-m6-eZ2" customClass="AccessViewController" customModule="smartpark" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="QvC-HO-3qW">
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -191,6 +191,21 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iLQ-H0-lRP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="855" y="-35"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="E3w-jU-TW7">
+            <objects>
+                <viewController id="6K8-iW-gol" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="26J-XD-Jao">
+                        <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="y16-9u-C3K"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Xls-OR-yEZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="731" y="-718"/>
         </scene>
     </scenes>
     <resources>
