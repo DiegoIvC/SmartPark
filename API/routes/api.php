@@ -6,27 +6,37 @@ use App\Http\Controllers\ProductController;
 use \App\Http\Controllers\UserController;
 use App\Http\Controllers\AccesoRFIDController;
 use \App\Http\Controllers\EspaciosEstacionamientoController;
+use App\Http\Controllers\TodoController;
+use App\Http\Controllers\EstacionController;
 
 Route::controller(UserController::class)->group(function () {
-    Route::post('/usuarios', [UserController::class, 'store']);
-    Route::get('/usuarios', [UserController::class, 'index']);
-    Route::get('/usuario/{rfid}', [UserController::class, 'show']);
+
 });
 
 Route::controller(AccesoRFIDController::class)->group(function () {
-    Route::get('/accesos_rfid', [AccesoRFIDController::class, 'index']);
-    Route::get('/usuarios/{rfid}/accesos', [AccesoRFIDController::class, 'getAccesosPorUsuario']);
-    Route::post('/accesos_rfid/in', [AccesoRFIDController::class, 'userIn']);
-    Route::put('/accesos_rfid/out/{rfid}', [AccesoRFIDController::class, 'userOut']);
+
 });
 
 Route::controller(EspaciosEstacionamientoController::class)->group(function () {
-    Route::post('/espacios', [EspaciosEstacionamientoController::class, 'store']);
-    Route::get('/espacios', [EspaciosEstacionamientoController::class, 'index']);
-    Route::get('/espacio/{id}', [EspaciosEstacionamientoController::class, 'show']);
-    Route::put('/espacio/sensor/', [EspaciosEstacionamientoController::class, 'sensorStatus']);
+
 });
 
+Route::controller(EstacionController::class)->group(function () {
+
+    //ESTACION
+    Route::get('/estacion/{id}','obtenerEstacion');
+    Route::get('/estacion/{id}/datos', 'obtenerDatosEstacion');
+        //USUARIOS
+        Route::post('/estacion/{id}/usuario','agregarUsuario');
+        Route::get('/estacion/{id}/usuario/{rfid}', 'obtenerUsuario');
+        //ACCESOS
+        Route::get('/estacion/{id}/accesos', 'obtenerAccesosTodosUsuarios');
+        Route::get('/estacion/{id}/usuario/{rfid}/accesos', 'obtenerAccesosUsuario');
+        //DATOS
+        Route::get('/estacion/{id}/datos/nuevos', 'obtenerDatosNuevos');
+            //ESTACIONAMIENTO
+            Route::get('/estacion/{id}/datos/estacionamiento', 'obtenerDatosEstacionamiento');
+});
 
 
 
