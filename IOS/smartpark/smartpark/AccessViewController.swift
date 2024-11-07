@@ -97,14 +97,14 @@ class AccessViewController: UIViewController {
         // Crear y configurar el primer label para el nombre
         let nameLabel = UILabel()
         nameLabel.text = name
-        nameLabel.font = UIFont.systemFont(ofSize: 13)
+        nameLabel.font = UIFont.systemFont(ofSize: 16)
         nameLabel.frame = CGRect(x: 80, y: 10, width: 200, height: 20)
         itemView.addSubview(nameLabel)
 
         // Crear y configurar el segundo label para el ID
         let idLabel = UILabel()
         idLabel.text = id
-        idLabel.font = UIFont.systemFont(ofSize: 12)
+        idLabel.font = UIFont.systemFont(ofSize: 14)
         idLabel.textColor = .gray
         idLabel.frame = CGRect(x: 80, y: 30, width: 200, height: 20)
         itemView.addSubview(idLabel)
@@ -112,7 +112,7 @@ class AccessViewController: UIViewController {
         // Crear y configurar el tercer label para el departamento
         let departmentLabel = UILabel()
         departmentLabel.text = department
-        departmentLabel.font = UIFont.systemFont(ofSize: 12)
+        departmentLabel.font = UIFont.systemFont(ofSize: 14)
         departmentLabel.textColor = .gray
         departmentLabel.frame = CGRect(x: 80, y: 50, width: 200, height: 20)
         itemView.addSubview(departmentLabel)
@@ -120,66 +120,12 @@ class AccessViewController: UIViewController {
         // Crear y configurar el cuarto label para la fecha
         let dateLabel = UILabel()
         dateLabel.text = date
-        dateLabel.font = UIFont.systemFont(ofSize: 12)
+        dateLabel.font = UIFont.systemFont(ofSize: 14)
         dateLabel.textColor = .gray
         dateLabel.frame = CGRect(x: 80, y: 70, width: 200, height: 20)
         itemView.addSubview(dateLabel)
 
         return itemView
-    }
-
-    @objc func toggleAusente(_ sender: UIButton) {
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-        }
-    }
-
-    @objc func toggleAsistiendo(_ sender: UIButton) {
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-        }
-    }
-
-    @objc func toggleSalida(_ sender: UIButton) {
-        guard let itemView = sender.superview else { return }
-
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-
-            if let entradaButton = itemView.viewWithTag(2) as? UIButton {
-                entradaButton.tintColor = .gray
-                entradaButton.setImage(UIImage(systemName: "circle"), for: .normal)
-            }
-        }
-    }
-
-    @objc func toggleEntrada(_ sender: UIButton) {
-        guard let itemView = sender.superview else { return }
-
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-
-            if let salidaButton = itemView.viewWithTag(1) as? UIButton {
-                salidaButton.tintColor = .gray
-                salidaButton.setImage(UIImage(systemName: "circle"), for: .normal)
-            }
-        }
     }
 
     

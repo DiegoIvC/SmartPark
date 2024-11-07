@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00BF5132CDB52ED0099B9A7 /* User.swift */; };
 		C02CE3D62CCEC0A400A48F52 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02CE3D52CCEC0A400A48F52 /* AppDelegate.swift */; };
 		C02CE3D82CCEC0A400A48F52 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02CE3D72CCEC0A400A48F52 /* SceneDelegate.swift */; };
 		C02CE3DA2CCEC0A400A48F52 /* AddUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02CE3D92CCEC0A400A48F52 /* AddUserViewController.swift */; };
@@ -14,10 +15,12 @@
 		C02CE3DF2CCEC0A600A48F52 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C02CE3DE2CCEC0A600A48F52 /* Assets.xcassets */; };
 		C02CE3E22CCEC0A600A48F52 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C02CE3E02CCEC0A600A48F52 /* LaunchScreen.storyboard */; };
 		C09E19932CD9899F0007B781 /* SpeedingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C09E19922CD9899F0007B781 /* SpeedingViewController.swift */; };
+		C0AAD4CB2CDBFAEA005467CA /* ApiExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AAD4CA2CDBFAEA005467CA /* ApiExampleViewController.swift */; };
 		C0FB97C32CD37F130075B790 /* AccessViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FB97C22CD37F130075B790 /* AccessViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C00BF5132CDB52ED0099B9A7 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C02CE3D22CCEC0A400A48F52 /* smartpark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = smartpark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C02CE3D52CCEC0A400A48F52 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C02CE3D72CCEC0A400A48F52 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -27,6 +30,7 @@
 		C02CE3E12CCEC0A600A48F52 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C02CE3E32CCEC0A600A48F52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C09E19922CD9899F0007B781 /* SpeedingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedingViewController.swift; sourceTree = "<group>"; };
+		C0AAD4CA2CDBFAEA005467CA /* ApiExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiExampleViewController.swift; sourceTree = "<group>"; };
 		C0FB97C22CD37F130075B790 /* AccessViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,6 +69,8 @@
 				C02CE3D92CCEC0A400A48F52 /* AddUserViewController.swift */,
 				C0FB97C22CD37F130075B790 /* AccessViewController.swift */,
 				C02CE3DB2CCEC0A400A48F52 /* Main.storyboard */,
+				C0AAD4CA2CDBFAEA005467CA /* ApiExampleViewController.swift */,
+				C00BF5132CDB52ED0099B9A7 /* User.swift */,
 				C09E19922CD9899F0007B781 /* SpeedingViewController.swift */,
 				C02CE3DE2CCEC0A600A48F52 /* Assets.xcassets */,
 				C02CE3E02CCEC0A600A48F52 /* LaunchScreen.storyboard */,
@@ -146,7 +152,9 @@
 			files = (
 				C09E19932CD9899F0007B781 /* SpeedingViewController.swift in Sources */,
 				C02CE3DA2CCEC0A400A48F52 /* AddUserViewController.swift in Sources */,
+				C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */,
 				C0FB97C32CD37F130075B790 /* AccessViewController.swift in Sources */,
+				C0AAD4CB2CDBFAEA005467CA /* ApiExampleViewController.swift in Sources */,
 				C02CE3D62CCEC0A400A48F52 /* AppDelegate.swift in Sources */,
 				C02CE3D82CCEC0A400A48F52 /* SceneDelegate.swift in Sources */,
 			);
