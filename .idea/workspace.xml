@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0e74392c-e932-4de2-978b-2415c4034d9a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/app/Http/Controllers/EstacionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/API/app/Http/Controllers/EstacionController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/API/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/API/routes/api.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -383,19 +383,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/SmartPark&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/xampp/htdocs/SmartPark",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="PHPUnit.Main">
     <configuration name="ApiOld" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
       <TestRunner configuration_file="$PROJECT_DIR$/ApiOld/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
@@ -445,6 +446,8 @@
       <workItem from="1730509444723" duration="1677000" />
       <workItem from="1730669812890" duration="12772000" />
       <workItem from="1730939703976" duration="5454000" />
+      <workItem from="1731087997190" duration="1174000" />
+      <workItem from="1731344793269" duration="1489000" />
     </task>
     <servers />
   </component>

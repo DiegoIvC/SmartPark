@@ -119,7 +119,7 @@ class EstacionController extends Controller
 
     public function obtenerDatosEstacionamiento($id)
     {
-        // Buscar la estación por ID
+        // Buscar la estación por ID usando Jenssegers MongoDB
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
@@ -128,27 +128,19 @@ class EstacionController extends Controller
         // Ordenar los datos por fecha descendente y obtener solo el dato más reciente
         $datoMasNuevo = collect($estacion->datos)->sortByDesc('fecha')->first();
 
-        // Filtrar solo los campos que empiezan con "Ul" y determinar su estado
-        $estadoUl = [];
+        // Filtrar solo los campos que comienzan con "IN" y determinar su estado
+        $estadoIN = [];
         foreach ($datoMasNuevo as $key => $valor) {
-            if (strpos($key, 'Ul') === 0) {
-                // Determinar el estado basado en el valor
-                if ($valor >= 0 && $valor <= 3) {
-                    $estado = 0;
-                } elseif ($valor >= 4 && $valor <= 7) {
-                    $estado = 1;
-                } else {
-                    $estado = 2;
-                }
-                // Guardar el estado con el nombre de la variable "Ul"
-                $estadoUl[$key] = [
+            if (strpos($key, 'IN') === 0) {
+                $estado = $valor == 1 ? 1 : 0; // Estado: 1 = ocupado, 0 = libre
+                $estadoIN[$key] = [
                     'valor' => $valor,
                     'estado' => $estado
                 ];
             }
         }
 
-        // Retornar el JSON con cada dato "Ul" y su estado
-        return response()->json($estadoUl);
+        // Retornar el JSON con cada dato "IN" y su estado
+        return response()->json($estadoIN);
     }
 }
