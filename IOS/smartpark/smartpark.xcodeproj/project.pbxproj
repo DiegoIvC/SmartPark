@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A08B1A3C2CE1615400D2EAA3 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */; };
+		A0A25E642CDDD75B001E1C54 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */; };
 		C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00BF5132CDB52ED0099B9A7 /* User.swift */; };
 		C02CE3D62CCEC0A400A48F52 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02CE3D52CCEC0A400A48F52 /* AppDelegate.swift */; };
 		C02CE3D82CCEC0A400A48F52 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02CE3D72CCEC0A400A48F52 /* SceneDelegate.swift */; };
@@ -20,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
+		A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C00BF5132CDB52ED0099B9A7 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C02CE3D22CCEC0A400A48F52 /* smartpark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = smartpark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C02CE3D52CCEC0A400A48F52 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -68,6 +72,8 @@
 				C02CE3D72CCEC0A400A48F52 /* SceneDelegate.swift */,
 				C02CE3D92CCEC0A400A48F52 /* AddUserViewController.swift */,
 				C0FB97C22CD37F130075B790 /* AccessViewController.swift */,
+				A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */,
+				A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */,
 				C02CE3DB2CCEC0A400A48F52 /* Main.storyboard */,
 				C0AAD4CA2CDBFAEA005467CA /* ApiExampleViewController.swift */,
 				C00BF5132CDB52ED0099B9A7 /* User.swift */,
@@ -151,8 +157,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C09E19932CD9899F0007B781 /* SpeedingViewController.swift in Sources */,
+				A08B1A3C2CE1615400D2EAA3 /* DashboardViewController.swift in Sources */,
 				C02CE3DA2CCEC0A400A48F52 /* AddUserViewController.swift in Sources */,
 				C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */,
+				A0A25E642CDDD75B001E1C54 /* HomeViewController.swift in Sources */,
 				C0FB97C32CD37F130075B790 /* AccessViewController.swift in Sources */,
 				C0AAD4CB2CDBFAEA005467CA /* ApiExampleViewController.swift in Sources */,
 				C02CE3D62CCEC0A400A48F52 /* AppDelegate.swift in Sources */,
@@ -308,6 +316,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3G2Y3W584W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = smartpark/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -339,6 +348,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3G2Y3W584W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = smartpark/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
