@@ -78,26 +78,37 @@ class EstacionController extends Controller
     // Obtener accesos de todos los usuarios en una estación
     public function obtenerAccesosTodosUsuarios($id)
     {
+        // Buscar la estación por ID
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        $usuariosConAcceso = collect($estacion->datos)->map(function ($usuario) {
-            $ultimoAcceso = collect($usuario['accesos'])->sortByDesc('fecha')->first();
-            return [
-                'nombre' => $usuario['nombre'],
-                'apellido_paterno' => $usuario['apellido_paterno'],
-                'apellido_materno' => $usuario['apellido_materno'],
-                'rfid' => $usuario['rfid'],
-                'curp' => $usuario['curp'],
-                'ultimo_acceso' => $ultimoAcceso ? $ultimoAcceso['fecha'] : null,
-            ];
-        })->filter(fn($usuario) => $usuario['ultimo_acceso'] !== null)
-            ->sortByDesc('ultimo_acceso')
-            ->values();
+        // Filtrar los datos de tipo "RF" de la estación
+        $datosRF = collect($estacion->datos)->filter(function ($dato) {
+            return strpos($dato['tipo'], 'RF') === 0; // Filtra todos los tipos que comienzan con "RF"
+        });
 
-        return response()->json($usuariosConAcceso);
+        // Obtener los usuarios correspondientes a los RFIDs encontrados
+        $usuariosRF = $datosRF->map(function ($dato) use ($estacion) {
+            $rfid = $dato['valor'];
+
+            // Buscar el usuario con ese RFID
+            $usuario = collect($estacion->usuarios)->firstWhere('rfid', $rfid);
+
+            // Si se encuentra un usuario, devolver su información completa
+            if ($usuario) {
+                return [
+                    'nombre' => $usuario['nombre'],
+                    'apellido_paterno' => $usuario['apellido_paterno'],
+                    'apellido_materno' => $usuario['apellido_materno'],
+                    'rfid' => $usuario['rfid'],
+                    'curp' => $usuario['curp']
+                ];
+            }
+        })->filter()->values(); // Filtrar usuarios nulos y reindexar la colección
+
+        return response()->json($usuariosRF);
     }
 
     // Obtener accesos de un usuario específico por RFID en una estación
