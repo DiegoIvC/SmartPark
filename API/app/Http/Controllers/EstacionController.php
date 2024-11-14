@@ -7,91 +7,18 @@ use App\Models\Estacion;
 
 class EstacionController extends Controller
 {
-    // 1. Registrar una nueva estación
-    public function registrarEstacion(Request $request)
+  /*  // Obtener una estación por ID
+    public function obtenerEstacion($id)
     {
-        $request->validate([
-            'nombre' => 'required|string',
-            'datos' => 'array',
-            'usuarios' => 'array',
-        ]);
-
-        $estacion = Estacion::create([
-            'nombre' => $request->input('nombre'),
-            'datos' => $request->input('datos', []),
-            'usuarios' => $request->input('usuarios', []),
-        ]);
-
-        return response()->json($estacion, 201);
-    }
-
-    // 2. Obtener los datos de un usuario específico por RFID
-    public function obtenerUsuario($estacionId, $usuarioRfid)
-    {
-        $estacion = Estacion::find($estacionId);
-        if (!$estacion) {
-            return response()->json(['message' => 'Estación no encontrada'], 404);
-        }
-
-        $usuario = collect($estacion->usuarios)->firstWhere('rfid', $usuarioRfid);
-
-        return $usuario
-            ? response()->json($usuario)
-            : response()->json(['message' => 'Usuario no encontrado'], 404);
-    }
-
-    public function obtenerAccesosTodosUsuarios($id)
-    {
-        // Buscar la estación por ID
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        // Filtrar y procesar los datos de los usuarios
-        $usuariosConUltimoAcceso = collect($estacion->usuarios)->map(function ($usuario) {
-            // Ordenar los accesos por fecha de entrada de más reciente a más antiguo
-            $ultimoAcceso = collect($usuario['accesos'])->sortByDesc('fechaEntrada')->first();
+        return response()->json($estacion);
+    }*/
 
-            return [
-                'nombre' => $usuario['nombre'],
-                'apellido_paterno' => $usuario['apellido_paterno'],
-                'apellido_materno' => $usuario['apellido_materno'],
-                'rfid' => $usuario['rfid'],
-                'curp' => $usuario['curp'],
-                'fecha_entrada' => $ultimoAcceso ? $ultimoAcceso['fechaEntrada'] : null,
-            ];
-        })
-            ->filter(fn($usuario) => $usuario['fecha_entrada'] !== null) // Filtrar usuarios sin fecha de entrada
-            ->sortByDesc('fecha_entrada') // Ordena usuarios por fecha de acceso más reciente
-            ->values(); // Reindexa la colección
-
-        return response()->json($usuariosConUltimoAcceso);
-    }
-
-    // 4. Obtener los accesos de un usuario específico por RFID
-    public function obtenerAccesosUsuario($estacionId, $usuarioRfid)
-    {
-        // Buscar la estación por ID
-        $estacion = Estacion::find($estacionId);
-        if (!$estacion) {
-            return response()->json(['message' => 'Estación no encontrada'], 404);
-        }
-
-        // Buscar el usuario por RFID
-        $usuario = collect($estacion->usuarios)->firstWhere('rfid', $usuarioRfid);
-        if (!$usuario) {
-            return response()->json(['message' => 'Usuario no encontrado'], 404);
-        }
-
-        // Ordenar los accesos del usuario por fecha de entrada, de más reciente a más antigua
-        $accesosOrdenados = collect($usuario['accesos'])->sortByDesc('fechaEntrada')->values();
-
-        return response()->json($accesosOrdenados);
-    }
-
-
-    // 5. Obtener los datos de la estación
+    // Obtener los datos de una estación
     public function obtenerDatosEstacion($id)
     {
         $estacion = Estacion::find($id);
@@ -99,48 +26,123 @@ class EstacionController extends Controller
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        // Ordenar los datos de la estación del más nuevo al más viejo
-        $datosOrdenados = collect($estacion->datos)->sortByDesc('fecha')->values();
+        // Agrupa los datos por tipo de sensor
+        $datosAgrupados = collect($estacion->datos)->groupBy('tipo');
 
-        return response()->json($datosOrdenados);
+        // Obtiene el último dato para cada tipo de sensor
+        $ultimosDatos = $datosAgrupados->map(function ($items) {
+            return $items->sortByDesc('fecha')->first();
+        });
+
+        // Retorna los datos como un array simple para trabajar con json_decode
+        return response()->json($ultimosDatos);
     }
 
-    public function obtenerDatosNuevos($id){
+
+    // Agregar un nuevo usuario a una estación
+    public function agregarUsuario(Request $request, $id)
+    {
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        // Ordenar los datos de la estación por fecha descendente (más nuevo primero) y obtener solo el más reciente
+        $request->validate([
+            'nombre' => 'required|string',
+            'apellido_paterno' => 'required|string',
+            'apellido_materno' => 'required|string',
+            'rfid' => 'required|string|unique:estacion,usuarios.rfid',
+            'curp' => 'required|string|unique:estacion,usuarios.curp',
+        ]);
+
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp');
+        $estacion->push('usuarios', $nuevoUsuario);
+
+        return response()->json($nuevoUsuario, 201);
+    }
+
+    // Obtener un usuario específico por RFID en una estación
+    public function obtenerUsuario($id, $rfid)
+    {
+        $estacion = Estacion::find($id);
+        if (!$estacion) {
+            return response()->json(['message' => 'Estación no encontrada'], 404);
+        }
+
+        $usuario = collect($estacion->usuarios)->firstWhere('rfid', $rfid);
+
+        return $usuario
+            ? response()->json($usuario)
+            : response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+    // Obtener accesos de todos los usuarios en una estación
+    public function obtenerAccesosTodosUsuarios($id)
+    {
+        $estacion = Estacion::find($id);
+        if (!$estacion) {
+            return response()->json(['message' => 'Estación no encontrada'], 404);
+        }
+
+        $usuariosConAcceso = collect($estacion->datos)->map(function ($usuario) {
+            $ultimoAcceso = collect($usuario['accesos'])->sortByDesc('fecha')->first();
+            return [
+                'nombre' => $usuario['nombre'],
+                'apellido_paterno' => $usuario['apellido_paterno'],
+                'apellido_materno' => $usuario['apellido_materno'],
+                'rfid' => $usuario['rfid'],
+                'curp' => $usuario['curp'],
+                'ultimo_acceso' => $ultimoAcceso ? $ultimoAcceso['fecha'] : null,
+            ];
+        })->filter(fn($usuario) => $usuario['ultimo_acceso'] !== null)
+            ->sortByDesc('ultimo_acceso')
+            ->values();
+
+        return response()->json($usuariosConAcceso);
+    }
+
+    // Obtener accesos de un usuario específico por RFID en una estación
+    public function obtenerAccesosUsuario($id, $rfid)
+    {
+        $estacion = Estacion::find($id);
+        if (!$estacion) {
+            return response()->json(['message' => 'Estación no encontrada'], 404);
+        }
+
+        $usuario = collect($estacion->usuarios)->firstWhere('rfid', $rfid);
+        if (!$usuario) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        $accesosOrdenados = collect($usuario['accesos'])->sortByDesc('fecha')->values();
+
+        return response()->json($accesosOrdenados);
+    }
+
+    // Obtener el dato más reciente de una estación
+    public function obtenerDatosNuevos($id)
+    {
+        $estacion = Estacion::find($id);
+        if (!$estacion) {
+            return response()->json(['message' => 'Estación no encontrada'], 404);
+        }
+
         $datoMasNuevo = collect($estacion->datos)->sortByDesc('fecha')->first();
 
         return response()->json($datoMasNuevo);
     }
 
+    // Obtener datos del estacionamiento (solo los registros "IN" y su estado)
     public function obtenerDatosEstacionamiento($id)
     {
-        // Buscar la estación por ID usando Jenssegers MongoDB
-        $estacion = Estacion::find($id);
-        if (!$estacion) {
-            return response()->json(['message' => 'Estación no encontrada'], 404);
-        }
+        // Obtenemos los datos de la estación
+        $datos = json_decode($this->obtenerDatosEstacion($id)->getContent(), true);
 
-        // Ordenar los datos por fecha descendente y obtener solo el dato más reciente
-        $datoMasNuevo = collect($estacion->datos)->sortByDesc('fecha')->first();
+        // Filtra los datos para obtener solo los que comienzan con "IN"
+        $datosIN = collect($datos)->filter(function ($item) {
+            return isset($item['tipo']) && strpos($item['tipo'], 'IN') === 0;
+        });
 
-        // Filtrar solo los campos que comienzan con "IN" y determinar su estado
-        $estadoIN = [];
-        foreach ($datoMasNuevo as $key => $valor) {
-            if (strpos($key, 'IN') === 0) {
-                $estado = $valor == 1 ? 1 : 0; // Estado: 1 = ocupado, 0 = libre
-                $estadoIN[$key] = [
-                    'valor' => $valor,
-                    'estado' => $estado
-                ];
-            }
-        }
-
-        // Retornar el JSON con cada dato "IN" y su estado
-        return response()->json($estadoIN);
+        // Retorna los datos filtrados
+        return response()->json($datosIN->values());
     }
 }
