@@ -51,11 +51,12 @@ class EstacionController extends Controller
             'nombre' => 'required|string',
             'apellido_paterno' => 'required|string',
             'apellido_materno' => 'required|string',
+            'rol'=>'required|string',
             'rfid' => 'required|string|unique:estacion,usuarios.rfid',
             'curp' => 'required|string|unique:estacion,usuarios.curp',
         ]);
 
-        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp');
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp','rol');
         $estacion->push('usuarios', $nuevoUsuario);
 
         return response()->json($nuevoUsuario, 201);
@@ -96,20 +97,22 @@ class EstacionController extends Controller
             // Buscar el usuario con ese RFID
             $usuario = collect($estacion->usuarios)->firstWhere('rfid', $rfid);
 
-            // Si se encuentra un usuario, devolver su información completa
+            // Si se encuentra un usuario, devolver su información completa junto con la fecha
             if ($usuario) {
                 return [
                     'nombre' => $usuario['nombre'],
                     'apellido_paterno' => $usuario['apellido_paterno'],
                     'apellido_materno' => $usuario['apellido_materno'],
                     'rfid' => $usuario['rfid'],
-                    'curp' => $usuario['curp']
+                    'curp' => $usuario['curp'],
+                    'fecha' => $dato['fecha'] // Agregar la fecha del dato
                 ];
             }
         })->filter()->values(); // Filtrar usuarios nulos y reindexar la colección
 
         return response()->json($usuariosRF);
     }
+
 
     // Obtener accesos de un usuario específico por RFID en una estación
     public function obtenerAccesosUsuario($id, $rfid)
