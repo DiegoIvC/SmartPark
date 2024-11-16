@@ -54,9 +54,24 @@ class EstacionController extends Controller
             'rol'=>'required|string',
             'rfid' => 'required|string|unique:estacion,usuarios.rfid',
             'curp' => 'required|string|unique:estacion,usuarios.curp',
+            'departamento' => 'required|string',
         ]);
 
-        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp','rol');
+        // Validar unicidad de RFID y CURP dentro del array de usuarios
+        $usuarios = collect($estacion->usuarios);
+
+        $existeRfid = $usuarios->contains('rfid', $request->rfid);
+        $existeCurp = $usuarios->contains('curp', $request->curp);
+
+        if ($existeRfid) {
+            return response()->json(['message' => 'El RFID ya está registrado.'], 422);
+        }
+
+        if ($existeCurp) {
+            return response()->json(['message' => 'El CURP ya está registrado.'], 422);
+        }
+
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp','rol','departamento');
         $estacion->push('usuarios', $nuevoUsuario);
 
         return response()->json($nuevoUsuario, 201);
