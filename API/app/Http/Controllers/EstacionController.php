@@ -126,8 +126,12 @@ class EstacionController extends Controller
             }
         })->filter()->values(); // Filtrar usuarios nulos y reindexar la colección
 
-        return response()->json($usuariosRF);
+        // Ordenar los resultados por fecha descendente
+        $usuariosRFOrdenados = $usuariosRF->sortByDesc('fecha')->values();
+
+        return response()->json($usuariosRFOrdenados);
     }
+
 
     // Obtener accesos de un usuario específico por RFID en una estación
     public function obtenerAccesosUsuario($id, $rfid)
