@@ -47,14 +47,16 @@ class EstacionController extends Controller
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
+        // Validación de los campos incluyendo la imagen
         $request->validate([
             'nombre' => 'required|string',
             'apellido_paterno' => 'required|string',
             'apellido_materno' => 'required|string',
-            'rol'=>'required|string',
+            'rol' => 'required|string',
             'rfid' => 'required|string|unique:estacion,usuarios.rfid',
             'curp' => 'required|string|unique:estacion,usuarios.curp',
             'departamento' => 'required|string',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validar la imagen
         ]);
 
         // Validar unicidad de RFID y CURP dentro del array de usuarios
@@ -71,11 +73,25 @@ class EstacionController extends Controller
             return response()->json(['message' => 'El CURP ya está registrado.'], 422);
         }
 
-        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp','rol','departamento');
+        // Procesar la imagen si se incluye
+        $rutaImagen = null;
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreArchivo = time() . '_' . $imagen->getClientOriginalName();
+            $rutaImagen = $imagen->storeAs('public/users/img', $nombreArchivo); // Guardar en storage/app/public/users/img
+            $rutaImagen = str_replace('public/', 'storage/', $rutaImagen); // Ajustar la ruta para acceso público
+        }
+
+        // Crear el nuevo usuario con la ruta de la imagen
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp', 'rol', 'departamento');
+        $nuevoUsuario['imagen'] = $rutaImagen; // Agregar la ruta de la imagen
+
+        // Guardar en la colección de usuarios
         $estacion->push('usuarios', $nuevoUsuario);
 
         return response()->json($nuevoUsuario, 201);
     }
+
 
     // Obtener un usuario específico por RFID en una estación
     public function obtenerUsuario($id, $rfid)
@@ -122,6 +138,7 @@ class EstacionController extends Controller
                     'curp' => $usuario['curp'],
                     'fecha' => $dato['fecha'], // Agregar la fecha del dato
                     'departamento' => $usuario['departamento'] ?? 'Sin departamento', // Verificar si existe el departamento
+                    'imagen' => $usuario['imagen'] ?? 'Sin imagen' // Verificar si existe la imagen
                 ];
             }
         })->filter()->values(); // Filtrar usuarios nulos y reindexar la colección
