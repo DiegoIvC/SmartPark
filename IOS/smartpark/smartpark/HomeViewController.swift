@@ -31,7 +31,7 @@ class HomeViewController: UIViewController {
         }
         
         let urlSession = URLSession.shared
-        let urlCajones = URL(string: "http://localhost:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos/estacionamiento")
+        let urlCajones = URL(string: "http://localhost:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos")
         urlSession.dataTask(with: urlCajones!) {
             data, response, error in
             if let data = data {
@@ -39,9 +39,9 @@ class HomeViewController: UIViewController {
                 //print(String(describing: json))
                 if let jsonSerializable = json as? [String: Any] {
                     print(String(describing: jsonSerializable))
-                    if let Ul01 = jsonSerializable["Ul-01"] as? [String: Any] {
+                    if let Ul01 = jsonSerializable["IN-01"] as? [String: Any] {
                         print(String(describing: Ul01))
-                        if Ul01["estado"] as! Int == 0 {
+                        if Ul01["valor"] as! Int == 0 {
                             DispatchQueue.main.async {
                                 //self.viewCajones[0].backgroundColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 0.5)
                                 self.labelEstadoCajones[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
@@ -58,8 +58,8 @@ class HomeViewController: UIViewController {
                         }
 
                     }
-                    if let Ul02 = jsonSerializable["Ul-02"] as? [String: Any] {
-                        if Ul02["estado"] as! Int == 0 {
+                    if let Ul02 = jsonSerializable["IN-02"] as? [String: Any] {
+                        if Ul02["valor"] as! Int == 0 {
                             DispatchQueue.main.async {
                                 DispatchQueue.main.async {
                                     self.labelEstadoCajones[1].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
@@ -75,8 +75,8 @@ class HomeViewController: UIViewController {
                             }
                         }
                     }
-                    if let Ul03 = jsonSerializable["Ul-03"] as? [String: Any] {
-                        if Ul03["estado"] as! Int == 0 {
+                    if let Ul03 = jsonSerializable["IN-03"] as? [String: Any] {
+                        if Ul03["valor"] as! Int == 0 {
                             DispatchQueue.main.async {
                                 self.labelEstadoCajones[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
                                 self.labelDisponibilidad[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
