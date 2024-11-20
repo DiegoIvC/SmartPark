@@ -33,7 +33,6 @@ class EstacionController extends Controller
         $ultimosDatos = $datosAgrupados->map(function ($items) {
             return $items->sortByDesc('fecha')->first();
         });
-
         // Retorna los datos como un array simple para trabajar con json_decode
         return response()->json($ultimosDatos);
     }
@@ -142,7 +141,6 @@ class EstacionController extends Controller
                 ];
             }
         })->filter()->values(); // Filtrar usuarios nulos y reindexar la colección
-
         // Ordenar los resultados por fecha descendente
         $usuariosRFOrdenados = $usuariosRF->sortByDesc('fecha')->values();
 
@@ -194,5 +192,46 @@ class EstacionController extends Controller
 
         // Retorna los datos filtrados
         return response()->json($datosIN->values());
+    }
+
+    public function datosFake()
+    {
+        $data = [
+            [
+                "tipo" => "LU",
+                "horario1" => "2024-11-06 19:10:34",
+                "horario2" => "2024-11-07 06:49:28",
+                "timepoTotal" => "11 horas, 38 minutos y 54 segundos."
+            ],
+            [
+                "tipo" => "HU",
+                "ultima-alarma" => "2024-11-06 19:10:34",
+                "duracion" => "0 horas, 4 min y 28 segundos"
+            ],
+            [
+                "tipo" => "RF",
+                "ultimo-acceso" => [
+                    "nombre" => "Miguel",
+                    "apellido_paterno" => "Castro",
+                    "apellido_materno" => "Mesta",
+                    "rfid" => "9929900",
+                    "curp" => "CURP12ss5611",
+                    "rol" => "empleado",
+                    "departamento" => "Administracion",
+                    "imagen" => "ruta/imagen",
+                    "fecha" => "2024-11-06 19:10:34"
+                ]
+            ],
+            [
+                "tipo" => "IN",
+                "espacios" => [
+                    "espacio1" => 1,
+                    "espacio2" => 2,
+                    "espacio3" => 3
+                ]
+            ]
+        ];
+
+        return response()->json($data);
     }
 }
