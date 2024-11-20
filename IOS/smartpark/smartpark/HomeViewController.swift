@@ -29,64 +29,36 @@ class HomeViewController: UIViewController {
         for nombreCajon in labelNombreCajones {
             nombreCajon.textColor = UIColor(red: 212/255, green: 212/255, blue: 212/255, alpha: 1)
         }
-        
+        actualizarCajones()
+        actualizarCajonesCada5Segundos()
+    }
+    
+    func actualizarCajonesCada5Segundos() {
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            self.actualizarCajones()
+            //print("actualizado")
+        }
+    }
+    
+    func actualizarCajones() {
         let urlSession = URLSession.shared
-        let urlCajones = URL(string: "http://localhost:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos")
+        let urlCajones = URL(string: "http://127.0.0.1:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos/estacionamiento")
         urlSession.dataTask(with: urlCajones!) {
             data, response, error in
             if let data = data {
-                let json = try? JSONSerialization.jsonObject(with: data)
-                //print(String(describing: json))
-                if let jsonSerializable = json as? [String: Any] {
-                    print(String(describing: jsonSerializable))
-                    if let Ul01 = jsonSerializable["IN-01"] as? [String: Any] {
-                        print(String(describing: Ul01))
-                        if Ul01["valor"] as! Int == 0 {
-                            DispatchQueue.main.async {
-                                //self.viewCajones[0].backgroundColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 0.5)
-                                self.labelEstadoCajones[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                                self.labelDisponibilidad[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                                
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                self.labelEstadoCajones[0].textColor = .red
-                                self.imageViewCajones[0].image = UIImage.carUp
-                                self.labelDisponibilidad[0].text = "No disponible"
-                                self.labelDisponibilidad[0].textColor = .red
-                            }
-                        }
-
-                    }
-                    if let Ul02 = jsonSerializable["IN-02"] as? [String: Any] {
-                        if Ul02["valor"] as! Int == 0 {
-                            DispatchQueue.main.async {
-                                DispatchQueue.main.async {
-                                    self.labelEstadoCajones[1].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                                    self.labelDisponibilidad[1].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                                }
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                self.labelEstadoCajones[1].textColor = .red
-                                self.imageViewCajones[1].image = UIImage.carUp
-                                self.labelDisponibilidad[1].text = "No disponible"
-                                self.labelDisponibilidad[1].textColor = .red
-                            }
-                        }
-                    }
-                    if let Ul03 = jsonSerializable["IN-03"] as? [String: Any] {
-                        if Ul03["valor"] as! Int == 0 {
-                            DispatchQueue.main.async {
-                                self.labelEstadoCajones[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                                self.labelDisponibilidad[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                self.labelEstadoCajones[2].textColor = .red
-                                self.imageViewCajones[2].image = UIImage.carUp
-                                self.labelDisponibilidad[2].text = "No disponible"
-                                self.labelDisponibilidad[2].textColor = .red
+                if let cajones = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                    DispatchQueue.main.async {
+                        //print(cajones)
+                        for (indice, cajon) in cajones.enumerated() {
+                            //print(String(describing: cajon["valor"]))
+                            if(cajon["valor"] as? String == "1") {
+                                self.labelDisponibilidad[indice].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.labelEstadoCajones[indice].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.imageViewCajones[indice].image = nil
+                            } else {
+                                self.labelDisponibilidad[indice].textColor = .red
+                                self.labelEstadoCajones[indice].textColor = .red
+                                self.imageViewCajones[indice].image = .carUp
                             }
                         }
                     }
