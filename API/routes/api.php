@@ -33,6 +33,7 @@ Route::controller(EstacionController::class)->group(function () {
         Route::get('/estacion/{id}/accesos', 'obtenerAccesosTodosUsuarios');
         Route::get('/estacion/{id}/usuario/{rfid}/accesos', 'obtenerAccesosUsuario');
         //DATOS
+        Route::get('/estacion/{id}/dashboard', 'obtenerDatosDashboard');
         Route::get('/datos-fake','datosFake');
         Route::get('/estacion/{id}/datos/nuevos', 'obtenerDatosNuevos');
             //ESTACIONAMIENTO
