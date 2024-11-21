@@ -27,7 +27,7 @@ class EstacionController extends Controller
         }
 
         // Agrupa los datos por tipo de sensor
-        $datosAgrupados = collect($estacion->datos)->groupBy('tipo');
+        $datosAgrupados = collect($estacion->sensores)->groupBy('tipo');
 
         // Obtiene el último dato para cada tipo de sensor
         $ultimosDatos = $datosAgrupados->map(function ($items) {
@@ -116,7 +116,7 @@ class EstacionController extends Controller
         }
 
         // Filtrar los datos de tipo "RF" de la estación
-        $datosRF = collect($estacion->datos)->filter(function ($dato) {
+        $datosRF = collect($estacion->sensores)->filter(function ($dato) {
             return strpos($dato['tipo'], 'RF') === 0; // Filtra todos los tipos que comienzan con "RF"
         });
 
@@ -151,20 +151,42 @@ class EstacionController extends Controller
     // Obtener accesos de un usuario específico por RFID en una estación
     public function obtenerAccesosUsuario($id, $rfid)
     {
+        // Encuentra la estación por ID
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
+        // Encuentra al usuario en la estación por su RFID
         $usuario = collect($estacion->usuarios)->firstWhere('rfid', $rfid);
         if (!$usuario) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
 
-        $accesosOrdenados = collect($usuario['accesos'])->sortByDesc('fecha')->values();
+        // Filtra los sensores que sean de tipo RF y coincidan con el RFID del usuario
+        $accesos = collect($estacion->sensores)
+            ->filter(function ($sensor) use ($rfid) {
+                return $sensor['tipo'] === 'RF-01' && $sensor['valor'] === $rfid;
+            })
+            ->sortByDesc('fecha') // Ordenar por fecha descendente
+            ->pluck('fecha'); // Extraer solo las fechas
 
-        return response()->json($accesosOrdenados);
+        // Formatear la respuesta con datos del usuario y accesos
+        $respuesta = [
+            'usuario' => [
+                'nombre' => $usuario['nombre'],
+                'apellido_paterno' => $usuario['apellido_paterno'],
+                'apellido_materno' => $usuario['apellido_materno'],
+                'rfid' => $usuario['rfid'],
+                'curp' => $usuario['curp'],
+            ],
+            'accesos' => $accesos
+        ];
+
+        // Devuelve la respuesta en formato JSON
+        return response()->json($respuesta);
     }
+
 
     // Obtener el dato más reciente de una estación
     public function obtenerDatosNuevos($id)
@@ -174,7 +196,7 @@ class EstacionController extends Controller
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        $datoMasNuevo = collect($estacion->datos)->sortByDesc('fecha')->first();
+        $datoMasNuevo = collect($estacion->sensores)->sortByDesc('fecha')->first();
 
         return response()->json($datoMasNuevo);
     }
@@ -192,6 +214,16 @@ class EstacionController extends Controller
 
         // Retorna los datos filtrados
         return response()->json($datosIN->values());
+    }
+
+    public function obtenerDatosDashboard($id)
+    {
+        $estacion = Estacion::find($id);
+        if (!$estacion) {
+            return response()->json(['message' => 'Estación no encontrada'], 404);
+        }
+
+        return "hola";
     }
 
     public function datosFake()
