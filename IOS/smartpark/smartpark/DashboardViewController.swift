@@ -11,6 +11,10 @@ class DashboardViewController: UIViewController {
 
     
     
+    @IBOutlet weak var lblUltimoAcceso: UILabel!
+    @IBOutlet weak var lblUltimaAlertaHumo: UILabel!
+    @IBOutlet weak var lblTiempoTotalLuz: UILabel!
+    @IBOutlet weak var lblUltimoHorarioLuz: UILabel!
     @IBOutlet var cuadrosCajones: [UILabel]!
     @IBOutlet weak var horaUltimoAcceso: UILabel!
     override func viewDidLoad() {
@@ -19,15 +23,20 @@ class DashboardViewController: UIViewController {
         //print("pantalla de dashboard")
         // Do any additional setup after loading the view.
         let urlSession = URLSession.shared
-        let urlAccesos = URL(string: "http://127.0.0.1:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/accesos")
+        let urlAccesos = URL(string: "http://localhost:8000/api/datos-fake")
         urlSession.dataTask(with: urlAccesos!) {
             data, response, error in
             if let data = data {
                 if let accesos = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-                    print(accesos)
                     DispatchQueue.main.async {
-                        self.horaUltimoAcceso.text = "\(accesos.first?["fecha"] as? String ?? "") por \(accesos.first?["nombre"] as? String ?? "")"
+                        print(accesos)
+                        self.lblUltimoHorarioLuz.text = "De: \(accesos[0]["horario1"]!) - a: \(accesos[0]["horario2"]!)"
+                        self.lblTiempoTotalLuz.text = "\(accesos[0]["timepoTotal"]!)"
+                        self.lblUltimaAlertaHumo.text = "\(accesos[1]["ultima-alarma"]!)"
                     }
+                    
+                    
+                    
                 }
             }
         }.resume()

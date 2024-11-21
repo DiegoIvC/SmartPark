@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Hwg-YB-oDH">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="1is-tr-PlZ">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
@@ -26,16 +26,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NwW-ii-EdT">
-                                <rect key="frame" x="90" y="113" width="21" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="73X-Ti-Wcs"/>
-                                    <constraint firstAttribute="width" secondItem="NwW-ii-EdT" secondAttribute="height" id="att-nh-yg0"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Último horario de luz" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nIi-PH-jKp">
                                 <rect key="frame" x="36" y="79" width="223" height="29"/>
                                 <constraints>
@@ -53,16 +43,6 @@
                                     <constraint firstAttribute="width" constant="105" id="Wy1-bZ-IeV"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Xgr-6u-cqw">
-                                <rect key="frame" x="116" y="113" width="49" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="Ms5-id-naX"/>
-                                    <constraint firstAttribute="width" constant="49" id="go4-fX-Ob3"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -215,7 +195,6 @@
                             <constraint firstItem="jl9-Za-Fj7" firstAttribute="width" secondItem="yys-ZT-rt2" secondAttribute="width" multiplier="0.5" id="6Ep-jS-uQ5"/>
                             <constraint firstItem="z5l-Ff-bEA" firstAttribute="leading" secondItem="6vI-6Y-gTB" secondAttribute="trailing" constant="10" id="6cD-EX-1Ej"/>
                             <constraint firstItem="R9T-Kr-nmI" firstAttribute="top" secondItem="hl8-9K-uN4" secondAttribute="bottom" constant="20" id="7fw-pv-S0A"/>
-                            <constraint firstItem="NwW-ii-EdT" firstAttribute="leading" secondItem="4fr-17-KpY" secondAttribute="trailing" constant="5" id="8qK-Jc-jRl"/>
                             <constraint firstItem="SMd-Xs-ish" firstAttribute="top" secondItem="jl9-Za-Fj7" secondAttribute="bottom" constant="20" id="9y8-8p-eWJ"/>
                             <constraint firstItem="T7v-HU-bsR" firstAttribute="top" secondItem="zF9-Kt-qEy" secondAttribute="bottom" constant="20" id="Dq9-im-nu9"/>
                             <constraint firstItem="hl8-9K-uN4" firstAttribute="leading" secondItem="SMd-Xs-ish" secondAttribute="leading" id="EXr-VP-7Uv"/>
@@ -223,12 +202,10 @@
                             <constraint firstItem="xD9-R2-7su" firstAttribute="centerX" secondItem="H7K-hO-7TO" secondAttribute="centerX" id="I6N-Vk-EdF"/>
                             <constraint firstItem="ggb-7f-qbH" firstAttribute="top" secondItem="eqJ-39-R5t" secondAttribute="bottom" constant="5" id="KcB-jp-OuN"/>
                             <constraint firstItem="SMd-Xs-ish" firstAttribute="leading" secondItem="nIi-PH-jKp" secondAttribute="leading" id="L7q-wR-aGH"/>
-                            <constraint firstItem="Xgr-6u-cqw" firstAttribute="leading" secondItem="NwW-ii-EdT" secondAttribute="trailing" constant="5" id="LlP-Yb-IK2"/>
                             <constraint firstItem="4fr-17-KpY" firstAttribute="leading" secondItem="nIi-PH-jKp" secondAttribute="leading" id="MyS-Je-XYb"/>
                             <constraint firstItem="T7v-HU-bsR" firstAttribute="leading" secondItem="nIi-PH-jKp" secondAttribute="leading" id="NCw-hn-Pbw"/>
                             <constraint firstItem="nIi-PH-jKp" firstAttribute="centerX" secondItem="yys-ZT-rt2" secondAttribute="centerX" multiplier="0.75" id="PTx-f9-HL4"/>
                             <constraint firstItem="z5l-Ff-bEA" firstAttribute="centerY" secondItem="6vI-6Y-gTB" secondAttribute="centerY" id="Sng-Ox-2OH"/>
-                            <constraint firstItem="NwW-ii-EdT" firstAttribute="centerY" secondItem="4fr-17-KpY" secondAttribute="centerY" id="UDU-0t-5yi"/>
                             <constraint firstItem="H7K-hO-7TO" firstAttribute="top" secondItem="R9T-Kr-nmI" secondAttribute="bottom" constant="5" id="UNF-29-BBa"/>
                             <constraint firstItem="hl8-9K-uN4" firstAttribute="width" secondItem="jl9-Za-Fj7" secondAttribute="width" id="Ufd-9p-KCa"/>
                             <constraint firstItem="ggb-7f-qbH" firstAttribute="centerX" secondItem="eqJ-39-R5t" secondAttribute="centerX" id="W4b-YH-hLF"/>
@@ -248,12 +225,15 @@
                             <constraint firstItem="6vI-6Y-gTB" firstAttribute="leading" secondItem="nIi-PH-jKp" secondAttribute="leading" id="vcb-Je-cOA"/>
                             <constraint firstItem="zF9-Kt-qEy" firstAttribute="width" secondItem="yys-ZT-rt2" secondAttribute="width" multiplier="0.5" id="xC2-4Q-HJC"/>
                             <constraint firstItem="eqJ-39-R5t" firstAttribute="leading" secondItem="H7K-hO-7TO" secondAttribute="trailing" constant="10" id="xNS-rD-0QV"/>
-                            <constraint firstItem="Xgr-6u-cqw" firstAttribute="centerY" secondItem="4fr-17-KpY" secondAttribute="centerY" id="yfJ-rH-pl8"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item 2" id="YBc-3y-tbC"/>
                     <connections>
                         <outlet property="horaUltimoAcceso" destination="hl8-9K-uN4" id="Zdr-7T-nKh"/>
+                        <outlet property="lblTiempoTotalLuz" destination="z5l-Ff-bEA" id="dvV-f3-eF8"/>
+                        <outlet property="lblUltimaAlertaHumo" destination="zF9-Kt-qEy" id="u4D-NG-icU"/>
+                        <outlet property="lblUltimoAcceso" destination="hl8-9K-uN4" id="7p0-7r-7m5"/>
+                        <outlet property="lblUltimoHorarioLuz" destination="4fr-17-KpY" id="688-f7-yzV"/>
                         <outletCollection property="cuadrosCajones" destination="T0R-B9-lR8" collectionClass="NSMutableArray" id="m8h-hW-p0Z"/>
                         <outletCollection property="cuadrosCajones" destination="H7K-hO-7TO" collectionClass="NSMutableArray" id="z72-X7-rfF"/>
                         <outletCollection property="cuadrosCajones" destination="eqJ-39-R5t" collectionClass="NSMutableArray" id="tXT-Po-iyE"/>
