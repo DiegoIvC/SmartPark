@@ -6,9 +6,11 @@ class AccessViewController: UIViewController {
 
     // Propiedades para la paginación
     var currentPage: Int = 0
-    let itemsPerPage: Int = 5
+    let itemsPerPage: Int = 2
     var totalItems: Int = 0
-    var data: [(String, String, String, String)] = []
+    var data: [(String, String, String, String, String)] = [] // Se añadió un campo para el departamento
+
+    var dataFetchTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,49 +19,77 @@ class AccessViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = true
 
-        // Datos de ejemplo
-        data = [
-            ("Juan Angel Castañeda Chávez", "CACJ2809", "Desarrollo", "28/09/10"),
-            ("Ana María Gómez López", "AMGL3012", "Recursos Humanos", "15/05/15"),
-            ("Carlos Eduardo Martínez Pérez", "CEMP1402", "Finanzas", "10/11/18"),
-            ("Lucía Fernández Torres", "LFT0910", "Ventas", "22/07/20"),
-            ("Miguel Ángel Salazar Román", "MASR2211", "Soporte Técnico", "30/03/19"),
-            ("Roberto Díaz Hernández", "RDH2512", "Marketing", "09/02/17"),
-            ("Andrea Soto Jiménez", "ASJ1908", "Desarrollo", "13/09/21"),
-            ("Elena Ríos Domínguez", "ERD0811", "Logística", "27/04/18"),
-            ("Francisco Ortega Ramos", "FOR0501", "Finanzas", "12/06/14"),
-            ("Silvia Villanueva Cruz", "SVC1703", "Compras", "31/08/19"),
-            ("Mario García Morales", "MGM2709", "Legal", "10/10/20"),
-            ("Gabriela Pérez Sánchez", "GPS1202", "Administración", "17/07/16"),
-            ("Héctor Rivera Valdez", "HRV0610", "Soporte Técnico", "25/11/17"),
-            ("Isabel Ortega Ramírez", "IOR2105", "Calidad", "03/03/13"),
-            ("Fernando Díaz Chávez", "FDC1506", "Ventas", "20/01/22"),
-            ("Laura Gutiérrez Herrera", "LGH2303", "Desarrollo", "08/04/14"),
-            ("Manuel Torres Cruz", "MTC1808", "Recursos Humanos", "27/05/20"),
-            ("Patricia Méndez Flores", "PMF0712", "Operaciones", "11/02/19"),
-            ("Eduardo Solís Nieto", "ESN2804", "Marketing", "05/10/21"),
-            ("Sofía Ruiz Vargas", "SRV0911", "Compras", "22/01/18"),
-            ("Alberto Vargas Reyes", "AVR2903", "Logística", "19/07/13"),
-            ("Olga Jiménez Lozano", "OJL1605", "Administración", "02/09/15"),
-            ("Jesús Ponce Salazar", "JPS0707", "Calidad", "18/10/17"),
-            ("Marcela Gómez Lara", "MGL2410", "Legal", "29/03/20"),
-            ("Andrés Romero Márquez", "ARM0106", "Finanzas", "04/12/19"),
-            ("Daniela Cruz Olmedo", "DCO1304", "Soporte Técnico", "09/09/14"),
-            ("Luis Herrera Ramírez", "LHR2212", "Ventas", "14/02/21"),
-            ("Carmen Peña Campos", "CPC1911", "Desarrollo", "07/05/16"),
-            ("Rafael Ortiz Torres", "ROT0202", "Marketing", "25/08/18"),
-            ("Monserrat Rangel Morales", "MRM1509", "Recursos Humanos", "17/06/15"),
-            ("José Luis Serrano Núñez", "JLS0505", "Calidad", "20/03/22"),
-            ("Raquel Salinas Gutiérrez", "RSG1408", "Operaciones", "12/07/13")
-        ]
+        // Llamar a la API por primera vez
+        fetchDataFromAPI()
 
-        totalItems = data.count
-
-        // Llamada a función para crear el contenido de la primera página
-        setupScrollViewContent(for: currentPage)
-
-        // Configurar paginador
+        // Configurar el paginador
         setupPaginator()
+
+        // Iniciar polling para obtener datos nuevos cada 10 segundos
+        startPollingForUpdates()
+    }
+
+    @objc func fetchDataFromAPI() {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/accesos") else {
+            showAlert(title: "Error", message: "URL no válida")
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: "Error en la conexión: \(error.localizedDescription)")
+                }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: "No se recibieron datos")
+                }
+                return
+            }
+
+            do {
+                let responseData = try JSONDecoder().decode([[String: String]].self, from: data)
+                self.data = responseData.map {
+                    let fullName = "\($0["nombre"] ?? "") \($0["apellido_paterno"] ?? "") \($0["apellido_materno"] ?? "")"
+                    let formattedDate = self.formatDate($0["fecha"] ?? "")
+                    return (fullName, $0["rfid"] ?? "N/A", $0["curp"] ?? "N/A", formattedDate, $0["departamento"] ?? "Sin departamento")
+                }
+                self.totalItems = self.data.count
+
+                DispatchQueue.main.async {
+                    if self.totalItems > 0 {
+                        // Actualizar dinámicamente la vista con los nuevos datos
+                        self.setupScrollViewContent(for: self.currentPage)
+                    } else {
+                        self.showAlert(title: "Aviso", message: "No hay accesos disponibles")
+                    }
+                    // Actualizamos la visibilidad de los botones del paginador
+                    self.updatePaginatorButtons()
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: "Error al procesar los datos: \(error.localizedDescription)")
+                }
+            }
+        }
+        task.resume()
+    }
+
+    // Función para formatear la fecha de manera simplificada
+    func formatDate(_ dateString: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = dateFormatter.date(from: dateString) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateStyle = .long
+            outputFormatter.timeStyle = .short // Incluimos la hora
+            return outputFormatter.string(from: date)
+        } else {
+            return dateString // Si no se puede parsear, devolvemos la fecha original
+        }
     }
 
     func setupScrollViewContent(for page: Int) {
@@ -70,20 +100,20 @@ class AccessViewController: UIViewController {
         let endIndex = min(startIndex + itemsPerPage, totalItems)
 
         for index in startIndex..<endIndex {
-            let yPosition = CGFloat(index % itemsPerPage) * (80 + 10)
+            let yPosition = CGFloat(index % itemsPerPage) * (90 + 10) // Aumentamos el espacio para el departamento
 
             // Crear la vista de cada elemento
-            let itemView = createItemView(name: data[index].0, id: data[index].1, department: data[index].2, date: data[index].3)
-            itemView.frame = CGRect(x: 0, y: yPosition, width: scrollView.frame.width, height: 80)
+            let itemView = createItemView(name: data[index].0, id: data[index].1, department: data[index].4, curp: data[index].2, date: data[index].3)
+            itemView.frame = CGRect(x: 0, y: yPosition, width: scrollView.frame.width, height: 90) // Ajustamos la altura por el nuevo label
 
             scrollView.addSubview(itemView)
         }
 
         // Ajustar el tamaño del contenido del scrollView
-        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: CGFloat((endIndex - startIndex)) * (80 + 10))
+        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: CGFloat((endIndex - startIndex)) * (90 + 10))
     }
 
-    func createItemView(name: String, id: String, department: String, date: String) -> UIView {
+    func createItemView(name: String, id: String, department: String, curp: String, date: String) -> UIView {
         let itemView = UIView()
 
         // Crear y configurar la imagen de perfil
@@ -101,7 +131,7 @@ class AccessViewController: UIViewController {
         nameLabel.frame = CGRect(x: 80, y: 10, width: 200, height: 20)
         itemView.addSubview(nameLabel)
 
-        // Crear y configurar el segundo label para el ID
+        // Crear y configurar el segundo label para el ID (rfid)
         let idLabel = UILabel()
         idLabel.text = id
         idLabel.font = UIFont.systemFont(ofSize: 14)
@@ -109,26 +139,33 @@ class AccessViewController: UIViewController {
         idLabel.frame = CGRect(x: 80, y: 30, width: 200, height: 20)
         itemView.addSubview(idLabel)
 
-        // Crear y configurar el tercer label para el departamento
+        // Crear y configurar el tercer label para el CURP
+        let curpLabel = UILabel()
+        curpLabel.text = curp
+        curpLabel.font = UIFont.systemFont(ofSize: 14)
+        curpLabel.textColor = .gray
+        curpLabel.frame = CGRect(x: 80, y: 50, width: 200, height: 20)
+        itemView.addSubview(curpLabel)
+
+        // Crear y configurar el cuarto label para el departamento
         let departmentLabel = UILabel()
         departmentLabel.text = department
         departmentLabel.font = UIFont.systemFont(ofSize: 14)
         departmentLabel.textColor = .gray
-        departmentLabel.frame = CGRect(x: 80, y: 50, width: 200, height: 20)
+        departmentLabel.frame = CGRect(x: 80, y: 70, width: 200, height: 20)
         itemView.addSubview(departmentLabel)
 
-        // Crear y configurar el cuarto label para la fecha
+        // Crear y configurar el quinto label para la fecha
         let dateLabel = UILabel()
         dateLabel.text = date
         dateLabel.font = UIFont.systemFont(ofSize: 14)
         dateLabel.textColor = .gray
-        dateLabel.frame = CGRect(x: 80, y: 70, width: 200, height: 20)
+        dateLabel.frame = CGRect(x: 80, y: 90, width: 200, height: 20) // Ajustamos la posición por la nueva altura
         itemView.addSubview(dateLabel)
 
         return itemView
     }
 
-    
     func setupPaginator() {
         let paginatorView = UIView(frame: CGRect(x: 0, y: self.view.frame.height - 100, width: self.view.frame.width, height: 50))
         paginatorView.backgroundColor = .white
@@ -149,28 +186,20 @@ class AccessViewController: UIViewController {
         let nextButton = UIButton(type: .system)
         nextButton.setTitle("Siguiente", for: .normal)
         nextButton.addTarget(self, action: #selector(nextPage), for: .touchUpInside)
-        nextButton.isEnabled = (currentPage + 1) * itemsPerPage < totalItems
+        nextButton.isEnabled = currentPage < totalPages() - 1
 
-        // Configuración del stack view para los botones e indicador
-        let stackView = UIStackView(arrangedSubviews: [previousButton, pageLabel, nextButton])
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .equalSpacing
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        paginatorView.addSubview(stackView)
+        // Colocar los botones y el label en el paginador
+        previousButton.frame = CGRect(x: 20, y: 10, width: 100, height: 30)
+        pageLabel.frame = CGRect(x: 130, y: 10, width: 160, height: 30)
+        nextButton.frame = CGRect(x: 300, y: 10, width: 100, height: 30)
 
-        // Constraints para centrar el stack view dentro de paginatorView
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: paginatorView.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: paginatorView.centerYAnchor),
-            stackView.leadingAnchor.constraint(equalTo: paginatorView.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: paginatorView.trailingAnchor, constant: -20)
-        ])
+        paginatorView.addSubview(previousButton)
+        paginatorView.addSubview(pageLabel)
+        paginatorView.addSubview(nextButton)
 
         self.view.addSubview(paginatorView)
     }
 
-    // Función para obtener el total de páginas basado en el número de elementos y elementos por página
     func totalPages() -> Int {
         return (totalItems + itemsPerPage - 1) / itemsPerPage
     }
@@ -179,37 +208,46 @@ class AccessViewController: UIViewController {
         if currentPage > 0 {
             currentPage -= 1
             setupScrollViewContent(for: currentPage)
-            updatePaginator()  // Llamada para actualizar el estado de los botones
+            updatePaginatorButtons()
         }
     }
 
     @objc func nextPage() {
-        if (currentPage + 1) * itemsPerPage < totalItems {
+        if currentPage < totalPages() - 1 {
             currentPage += 1
             setupScrollViewContent(for: currentPage)
-            updatePaginator()  // Llamada para actualizar el estado de los botones
+            updatePaginatorButtons()
         }
     }
 
-    func updatePaginator() {
-        // Encuentra el paginatorView (última subvista añadida en el setupPaginator)
-        if let paginatorView = self.view.subviews.last,
-           let stackView = paginatorView.subviews.first as? UIStackView,
-           let previousButton = stackView.arrangedSubviews[0] as? UIButton,
-           let pageLabel = stackView.arrangedSubviews[1] as? UILabel,
-           let nextButton = stackView.arrangedSubviews[2] as? UIButton {
-            
-            // Actualizar el texto del indicador de página
-            pageLabel.text = "Página \(currentPage + 1) de \(totalPages())"
-            
-            // Habilitar o deshabilitar botones según la página actual
-            previousButton.isEnabled = currentPage > 0
-            nextButton.isEnabled = (currentPage + 1) * itemsPerPage < totalItems
-        }
+    func updatePaginatorButtons() {
+        guard let paginatorView = self.view.subviews.last else { return }
+        
+        let previousButton = paginatorView.subviews.first { $0 is UIButton && ($0 as! UIButton).title(for: .normal) == "Anterior" } as? UIButton
+        let nextButton = paginatorView.subviews.first { $0 is UIButton && ($0 as! UIButton).title(for: .normal) == "Siguiente" } as? UIButton
+        let pageLabel = paginatorView.subviews.first { $0 is UILabel } as? UILabel
+
+        previousButton?.isEnabled = currentPage > 0
+        nextButton?.isEnabled = currentPage < totalPages() - 1
+        pageLabel?.text = "Página \(currentPage + 1) de \(totalPages())"
     }
 
 
+    // Función para manejar los errores
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Aceptar", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
 
+    // Polling para actualización periódica
+    func startPollingForUpdates() {
+        dataFetchTimer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(fetchDataFromAPI), userInfo: nil, repeats: true)
+    }
 
+    // Detener el polling cuando no se necesita más
+    deinit {
+        dataFetchTimer?.invalidate()
+    }
 }
 
