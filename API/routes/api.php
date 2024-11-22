@@ -38,7 +38,9 @@ Route::controller(EstacionController::class)->group(function () {
         Route::get('/estacion/{id}/datos/nuevos', 'obtenerDatosNuevos');
             //ESTACIONAMIENTO
             Route::get('/estacion/{id}/datos/estacionamiento', 'obtenerDatosEstacionamiento');
-
+        //ACTUADORES
+            //ALARMAS
+            Route::patch('/estacion/{id}/actuadores/alarma/apagar', 'apagarAlarma');
 });
 
 
