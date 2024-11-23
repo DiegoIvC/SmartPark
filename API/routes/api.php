@@ -29,6 +29,8 @@ Route::controller(EstacionController::class)->group(function () {
         //USUARIOS
         Route::post('/estacion/{id}/usuario','agregarUsuario');
         Route::get('/estacion/{id}/usuario/{rfid}', 'obtenerUsuario');
+            //RFID
+            Route::get('/estacion/{id}/lector/rfid', 'obtenerRfidLector');
         //ACCESOS
         Route::get('/estacion/{id}/accesos', 'obtenerAccesosTodosUsuarios');
         Route::get('/estacion/{id}/usuario/{rfid}/accesos', 'obtenerAccesosUsuario');

@@ -502,6 +502,43 @@ class EstacionController extends Controller
         ]);
     }
 
+    public function obtenerRfidLector($id)
+    {
+        // Encuentra la estación por ID
+        $estacion = Estacion::find($id);
+
+        if (!$estacion) {
+            return [
+                'error' => 'Estación no encontrada'
+            ];
+        }
+
+        // Verifica que sensores sea un arreglo o colección
+        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+            return [
+                'error' => 'Los sensores no tienen un formato válido'
+            ];
+        }
+
+        // Filtra los sensores que sean de tipo RF-2
+        $lectorRF = collect($estacion->sensores)->first(function ($sensor) {
+            return isset($sensor['tipo']) && $sensor['tipo'] === 'RF-2';
+        });
+
+        if (!$lectorRF) {
+            return [
+                'error' => 'No se encontraron sensores de tipo RF-2'
+            ];
+        }
+
+        // Devuelve el formato deseado
+        return [
+            'lector' => [
+                'valor' => $lectorRF['valor'],
+                'fecha' => $lectorRF['fecha'],
+            ]
+        ];
+    }
 
     public function datosFake()
     {
