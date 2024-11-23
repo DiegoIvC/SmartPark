@@ -540,6 +540,50 @@ class EstacionController extends Controller
         ];
     }
 
+    public function obtenerDatosCamaras($id)
+    {
+        // Encuentra la estación por ID
+        $estacion = Estacion::find($id);
+
+        if (!$estacion) {
+            return [
+                'error' => 'Estación no encontrada'
+            ];
+        }
+
+        // Verifica que actuadores sea un arreglo o colección
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
+            return [
+                'error' => 'Los actuadores no tienen un formato válido'
+            ];
+        }
+
+        // Filtra los actuadores que sean de tipo CA-1
+        $datosCA = collect($estacion->actuadores)->filter(function ($actuador) {
+            return isset($actuador['tipo']) && $actuador['tipo'] === 'CA-1';
+        });
+
+        if ($datosCA->isEmpty()) {
+            return [
+                'error' => 'No se encontraron actuadores de tipo CA-1'
+            ];
+        }
+
+        // Formatear los datos para la respuesta
+        $resultado = $datosCA->map(function ($actuador) {
+            return [
+                'imagen' => $actuador['valor'],
+                'velocidad' => $actuador['velocidad'] ?? null,
+                'fecha' => $actuador['fecha'],
+            ];
+        });
+
+        return [
+            'CA-1' => $resultado->values()
+        ];
+    }
+
+
     public function datosFake()
     {
         $data = [

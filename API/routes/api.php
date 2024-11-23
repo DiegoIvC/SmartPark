@@ -43,6 +43,8 @@ Route::controller(EstacionController::class)->group(function () {
         //ACTUADORES
             //ALARMAS
             Route::patch('/estacion/{id}/actuadores/alarma/apagar', 'apagarAlarma');
+            //CAMARAS
+            Route::get('/estacion/{id}/actuadores/velocimetro/camara', 'obtenerDatosCamaras');
 });
 
 
