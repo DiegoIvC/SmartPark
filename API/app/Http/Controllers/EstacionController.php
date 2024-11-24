@@ -349,7 +349,7 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
             return response()->json([
                 'error' => 'Los actuadores no tienen un formato válido'
             ], 400);
@@ -363,7 +363,7 @@ class EstacionController extends Controller
         $fecha = $request->input('fecha');
 
         // Hacer una copia del arreglo actuadores
-        $actuadores = $estacion->actuadores;
+        $actuadores = $estacion->sensores;
 
         // Actualizar los datos de los actuadores en la copia
         foreach ($actuadores as &$actuador) {
@@ -374,14 +374,14 @@ class EstacionController extends Controller
         }
 
         // Asignar la copia actualizada de nuevo al modelo
-        $estacion->actuadores = $actuadores;
+        $estacion->sensores = $actuadores;
         $estacion->save(); // Guardar cambios en la base de datos
 
         // Retorna la respuesta con los datos actualizados
         return response()->json([
-            'message' => 'Alarmas actualizadas correctamente',
+            'message' => 'Alarma desactivada correctamente',
             'fecha' => $fecha,
-            'actuadoresActualizados' => collect($actuadores)
+            'alarmasApagadas' => collect($actuadores)
                 ->filter(fn($actuador) => str_starts_with($actuador['tipo'], 'AL'))
                 ->values()
         ]);
