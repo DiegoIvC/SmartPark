@@ -9,16 +9,16 @@ use Illuminate\Tests\Database\EloquentRelationshipsTest\Car;
 
 class EstacionController extends Controller
 {
-  /*  // Obtener una estación por ID
-    public function obtenerEstacion($id)
-    {
-        $estacion = Estacion::find($id);
-        if (!$estacion) {
-            return response()->json(['message' => 'Estación no encontrada'], 404);
-        }
+    /*  // Obtener una estación por ID
+      public function obtenerEstacion($id)
+      {
+          $estacion = Estacion::find($id);
+          if (!$estacion) {
+              return response()->json(['message' => 'Estación no encontrada'], 404);
+          }
 
-        return response()->json($estacion);
-    }*/
+          return response()->json($estacion);
+      }*/
 
     // Obtener los datos de una estación
     public function obtenerDatosEstacion($id)
@@ -108,6 +108,7 @@ class EstacionController extends Controller
             ? response()->json($usuario)
             : response()->json(['message' => 'Usuario no encontrado'], 404);
     }
+
     // Obtener accesos de todos los usuarios en una estación
     public function obtenerAccesosTodosUsuarios($id)
     {
@@ -348,7 +349,7 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
             return response()->json([
                 'error' => 'Los actuadores no tienen un formato válido'
             ], 400);
@@ -362,7 +363,7 @@ class EstacionController extends Controller
         $fecha = $request->input('fecha');
 
         // Hacer una copia del arreglo actuadores
-        $actuadores = $estacion->actuadores;
+        $actuadores = $estacion->sensores;
 
         // Actualizar los datos de los actuadores en la copia
         foreach ($actuadores as &$actuador) {
@@ -373,18 +374,19 @@ class EstacionController extends Controller
         }
 
         // Asignar la copia actualizada de nuevo al modelo
-        $estacion->actuadores = $actuadores;
+        $estacion->sensores = $actuadores;
         $estacion->save(); // Guardar cambios en la base de datos
 
         // Retorna la respuesta con los datos actualizados
         return response()->json([
-            'message' => 'Alarmas actualizadas correctamente',
+            'message' => 'Alarma desactivada correctamente',
             'fecha' => $fecha,
-            'actuadoresActualizados' => collect($actuadores)
+            'alarmasApagadas' => collect($actuadores)
                 ->filter(fn($actuador) => str_starts_with($actuador['tipo'], 'AL'))
                 ->values()
         ]);
     }
+
     public function obtenerDatosRFID($id)
     {
         // Buscar la estación por ID
@@ -408,7 +410,7 @@ class EstacionController extends Controller
             // Si se encuentra un usuario, devolver su información completa junto con la fecha y departamento
             if ($usuario) {
                 return [
-                    'tipo'=> 'RF-1',
+                    'tipo' => 'RF-1',
                     'nombre' => $usuario['nombre'],
                     'apellido_paterno' => $usuario['apellido_paterno'],
                     'apellido_materno' => $usuario['apellido_materno'],
@@ -451,7 +453,7 @@ class EstacionController extends Controller
         // Recorremos los datos filtrados
         $datosIN->each(function ($item, $index) use (&$espacios) {
             // Aseguramos que el valor de cada espacio sea un número entero
-            $valor = isset($item['valor']) ? (int) $item['valor'] : 0;
+            $valor = isset($item['valor']) ? (int)$item['valor'] : 0;
 
             // Construimos la clave dinámica y asignamos el valor correspondiente
             $espacios['IN-' . ($index + 1)] = [
@@ -471,12 +473,13 @@ class EstacionController extends Controller
         ];
         return $respuesta;
     }
+
     public function obtenerDatosDashboard($id)
     {
 
         $luxometro = $this->obtenerDatosLuxometro($id);
         $alarma = $this->obtenerDatosAlarma($id);
-        $ultimo_acceso=$this->obtenerDatosRFID($id);
+        $ultimo_acceso = $this->obtenerDatosRFID($id);
         $estacionamiento = $this->obtenerDatosParking($id);
         // Si se obtiene el mensaje de error de la estación no encontrada, devuelvelo como respuesta
         if (isset($luxometro['message'])) {
@@ -485,7 +488,7 @@ class EstacionController extends Controller
         if (isset($alarma['message'])) {
             return response()->json($alarma, 404); // Devuelve un error 404 con el mensaje de error
         }
-        if(isset($ultimo_acceso['message'])){
+        if (isset($ultimo_acceso['message'])) {
             return response()->json($ultimo_acceso, 404);
         }
         if (isset($estacionamiento['message'])) {
@@ -540,44 +543,90 @@ class EstacionController extends Controller
         ];
     }
 
-    public function datosFake()
+    public function obtenerDatosCamaras($id)
     {
-        $data = [
-            [
-                "tipo" => "LU",
-                "horario1" => "2024-11-06 19:10:34",
-                "horario2" => "2024-11-07 06:49:28",
-                "timepoTotal" => "11 horas, 38 minutos y 54 segundos."
-            ],
-            [
-                "tipo" => "HU",
-                "ultima-alarma" => "2024-11-06 19:10:34",
-                "duracion" => "0 horas, 4 min y 28 segundos"
-            ],
-            [
-                "tipo" => "RF",
-                "ultimo-acceso" => [
-                    "nombre" => "Miguel",
-                    "apellido_paterno" => "Castro",
-                    "apellido_materno" => "Mesta",
-                    "rfid" => "9929900",
-                    "curp" => "CURP12ss5611",
-                    "rol" => "empleado",
-                    "departamento" => "Administracion",
-                    "imagen" => "ruta/imagen",
-                    "fecha" => "2024-11-06 19:10:34"
-                ]
-            ],
-            [
-                "tipo" => "IN",
-                "espacios" => [
-                    "espacio1" => 1,
-                    "espacio2" => 2,
-                    "espacio3" => 3
-                ]
-            ]
-        ];
+        // Encuentra la estación por ID
+        $estacion = Estacion::find($id);
 
-        return response()->json($data);
+        if (!$estacion) {
+            return [
+                'error' => 'Estación no encontrada'
+            ];
+        }
+
+        // Verifica que actuadores sea un arreglo o colección
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
+            return [
+                'error' => 'Los actuadores no tienen un formato válido'
+            ];
+        }
+
+        // Filtra los actuadores que sean de tipo CA-1
+        $datosCA = collect($estacion->actuadores)->filter(function ($actuador) {
+            return isset($actuador['tipo']) && $actuador['tipo'] === 'CA-1';
+        });
+
+        if ($datosCA->isEmpty()) {
+            return [
+                'error' => 'No se encontraron actuadores de tipo CA-1'
+            ];
+        }
+
+        // Formatear los datos para la respuesta
+        $resultado = $datosCA->map(function ($actuador) {
+            return [
+                'imagen' => $actuador['valor'],
+                'velocidad' => $actuador['velocidad'] ?? null,
+                'fecha' => $actuador['fecha'],
+            ];
+        });
+
+        return [
+            'CA-1' => $resultado->values()
+        ];
     }
+
+    public function obtenerDatosAlarmaEstatus($id)
+    {
+        // Encuentra la estación por ID
+        $estacion = Estacion::find($id);
+
+        if (!$estacion) {
+            return [
+                'error' => 'Estación no encontrada'
+            ];
+        }
+
+        // Verifica que actuadores sea un arreglo o colección
+        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+            return [
+                'error' => 'Los actuadores no tienen un formato válido'
+            ];
+        }
+
+        // Filtra todos los actuadores cuyo tipo comience con 'AL'
+        $actuadoresAL = collect($estacion->sensores)->filter(function ($actuador) {
+            return isset($actuador['tipo']) && str_starts_with($actuador['tipo'], 'AL');
+        });
+
+        // Si no se encuentran actuadores de tipo 'AL', retorna un mensaje
+        if ($actuadoresAL->isEmpty()) {
+            return [
+                'message' => 'No se encontraron actuadores de tipo AL'
+            ];
+        }
+
+        // Formatea la salida
+        $resultado = $actuadoresAL->map(function ($actuador) {
+            return [
+                'valor' => isset($actuador['valor']) && $actuador['valor'] == "1" ? true : false,
+            ];
+        });
+
+        // Retorna el formato requerido
+        return [
+            'HU' => $resultado->values()
+        ];
+    }
+
 }
