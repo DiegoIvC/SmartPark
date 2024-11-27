@@ -46,6 +46,7 @@ Route::controller(EstacionController::class)->group(function () {
             Route::get('/estacion/{id}/actuadores/alarma/estatus', 'obtenerDatosAlarmaEstatus');
             //CAMARAS
             Route::get('/estacion/{id}/actuadores/velocimetro/camara', 'obtenerDatosCamaras');
+            Route::get('/estacion/','obtenerDatosEstacion');
 });
 
 
