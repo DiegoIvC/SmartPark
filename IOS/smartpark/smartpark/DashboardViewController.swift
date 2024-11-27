@@ -33,6 +33,7 @@ class DashboardViewController: UIViewController {
         }
         
         actualizarDashboard()
+        ButtonStatus()
         actualizarDashboardCada5Segundos()
     }
     
@@ -50,7 +51,7 @@ class DashboardViewController: UIViewController {
         urlSession.dataTask(with: url) { data, response, error in
             if let data = data {
                 let json = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
-                print(json)
+                //print(json)
                 if let sensorLuz = json?[0] {
                     //print(sensorLuz)
                     DispatchQueue.main.async {
@@ -130,15 +131,75 @@ class DashboardViewController: UIViewController {
                 
             }
         }.resume()
+        
+        ButtonStatus()
     }
     
-    func actualizarBoton(){
+    func ButtonStatus(){
+        let urlSession = URLSession.shared
+        let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/actuadores/alarma/estatus")
+        
+        urlSession.dataTask(with: url!) { (data, response, error) in
+            if let data = data {
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let sensorHumedad = json["HU"] as? [[String:Any]] {
+                        print(sensorHumedad)
+                        if let valor = sensorHumedad[0]["valor"] as? Int {
+                            DispatchQueue.main.async {
+                                self.btnAlarma.isEnabled = valor == 1 ? true : false
+                            }
+                        }
+                    }
+                }
+            }
+        }.resume()
+    }
+    
+    func apagarAlarma(){
+        let fecha = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = TimeZone.current
+        let fechaFormateada = dateFormatter.string(from: fecha)
+        print(fechaFormateada)
+        
+        let urlSession = URLSession.shared
+        guard let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/actuadores/alarma/apagar") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer zfDzOl3vzfDzOl3vzfDzOl3vzfDzOl3vz", forHTTPHeaderField: "Authorization")
+        
+        let json = ["fecha": fechaFormateada]
+        let jsonData = try? JSONSerialization.data(withJSONObject: json, options: [])
+        
+        request.httpBody = jsonData
+        urlSession.dataTask(with: request) { data, response, error in
+            if let data = data {
+                if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    print(data)
+                }
+            }
+            
+            if let response = response {
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("HTTP Response: \(httpResponse.statusCode)")
+                }
+            }
+            
+            if let error = error {
+                if let urlError = error as? URLError {
+                    print(urlError.localizedDescription)
+                }
+            }
+        }.resume()
         
     }
     
     
     @IBAction func btnApagarAlarma(_ sender: UIButton) {
-        
+        apagarAlarma()
     }
     
     
