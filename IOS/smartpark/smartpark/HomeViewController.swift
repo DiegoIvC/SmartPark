@@ -42,16 +42,16 @@ class HomeViewController: UIViewController {
     
     func actualizarCajones() {
         let urlSession = URLSession.shared
-        let urlCajones = URL(string: "http://127.0.0.1:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos/estacionamiento")
+        let urlCajones = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/datos/estacionamiento")
         urlSession.dataTask(with: urlCajones!) {
             data, response, error in
             if let data = data {
                 if let cajones = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
                     DispatchQueue.main.async {
-                        //print(cajones)
+                        print(cajones)
                         for (indice, cajon) in cajones.enumerated() {
                             //print(String(describing: cajon["valor"]))
-                            if(cajon["valor"] as? String == "1") {
+                            if(cajon["valor"] as? String == "0") {
                                 self.labelDisponibilidad[indice].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
                                 self.labelEstadoCajones[indice].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
                                 self.imageViewCajones[indice].image = nil

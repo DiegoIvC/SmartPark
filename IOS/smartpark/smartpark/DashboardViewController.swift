@@ -9,39 +9,126 @@ import UIKit
 
 class DashboardViewController: UIViewController {
 
-    
-    
-    @IBOutlet weak var lblUltimoAcceso: UILabel!
-    @IBOutlet weak var lblUltimaAlertaHumo: UILabel!
+    @IBOutlet weak var lblUltimaHoraLuz: UILabel!
     @IBOutlet weak var lblTiempoTotalLuz: UILabel!
-    @IBOutlet weak var lblUltimoHorarioLuz: UILabel!
-    @IBOutlet var cuadrosCajones: [UILabel]!
-    @IBOutlet weak var horaUltimoAcceso: UILabel!
+    @IBOutlet weak var lblUltimaAlarmaHumo: UILabel!
+    @IBOutlet weak var lblUltimaAlarmaAuto: UILabel!
+    @IBOutlet weak var lblUltimoAcceso: UILabel!
+    
+    @IBOutlet var lblStatusCajones: [UILabel]!
+    @IBOutlet var lblTextoDisponibilidad: [UILabel]!
+    @IBOutlet var imvCajones: [UIImageView]!
+    
+    
+    @IBOutlet var viewsCajones: [UIView]!
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //print("pantalla de dashboard")
-        // Do any additional setup after loading the view.
+        for cajon in viewsCajones {
+            cajon.layer.cornerRadius = 10
+        }
+        
+        actualizarDashboard()
+        actualizarDashboardCada5Segundos()
+    }
+    
+    func actualizarDashboardCada5Segundos() {
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            self.actualizarDashboard()
+            //print("actualizado")
+        }
+    }
+    
+    func actualizarDashboard() {
         let urlSession = URLSession.shared
-        let urlAccesos = URL(string: "http://localhost:8000/api/datos-fake")
-        urlSession.dataTask(with: urlAccesos!) {
-            data, response, error in
+        let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/dashboard")!
+        
+        urlSession.dataTask(with: url) { data, response, error in
             if let data = data {
-                if let accesos = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                let json = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+                print(json)
+                if let sensorLuz = json?[0] {
+                    //print(sensorLuz)
                     DispatchQueue.main.async {
-                        print(accesos)
-                        self.lblUltimoHorarioLuz.text = "De: \(accesos[0]["horario1"]!) - a: \(accesos[0]["horario2"]!)"
-                        self.lblTiempoTotalLuz.text = "\(accesos[0]["timepoTotal"]!)"
-                        self.lblUltimaAlertaHumo.text = "\(accesos[1]["ultima-alarma"]!)"
+                        self.lblUltimaHoraLuz.text = "\(sensorLuz["horariodelValor0"] as? String ?? "No se pudo recuperar el dato")"
+                        self.lblTiempoTotalLuz.text = "\(sensorLuz["tiempoTotal"] as? String ?? "No se pudo recuperar el dato")"
+                    }
+                }
+                
+                if let sensorHumo = json?[1] {
+                    DispatchQueue.main.async {
+                        self.lblUltimaAlarmaHumo.text = "\(sensorHumo["ultima-alarma"] as? String ?? "No se pudo recuperar el dato")"
+                    }
+                }
+                
+                if let sensorAcceso = json?[2] {
+                    //print(sensorAcceso)
+                    DispatchQueue.main.async {
+                        self.lblUltimoAcceso.text = "\(sensorAcceso["fecha"] as? String ?? "No se pudo recuperar el valor")"
+                    }
+                }
+                
+                if let sensorEspacios = json?[3] {
+                    let espacios = sensorEspacios["espacios"] as? [String:Any]
+                    
+                    let espacio1 = espacios?["IN-1"]
+                    if let espacio1 = espacio1 as? [String:Any] {
+                        if espacio1["valor"] as! Int == 0 {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.lblTextoDisponibilidad[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.imvCajones[0].image = nil
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[0].textColor = .red
+                                self.lblTextoDisponibilidad[0].textColor = .red
+                                self.imvCajones[0].image = .carUp
+                            }
+                        }
                     }
                     
+                    let espacio2 = espacios?["IN-2"]
+                    if let espacio2 = espacio2 as? [String:Any] {
+                        if espacio2["valor"] as! Int == 0 {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[1].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.lblTextoDisponibilidad[1].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.imvCajones[1].image = nil
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[1].textColor = .red
+                                self.lblTextoDisponibilidad[1].textColor = .red
+                                self.imvCajones[1].image = .carUp
+                            }
+                        }
+                    }
                     
-                    
+                    let espacio3 = espacios?["IN-3"]
+                    if let espacio3 = espacio3 as? [String:Any] {
+                        if espacio3["valor"] as! Int == 0 {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.lblTextoDisponibilidad[2].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
+                                self.imvCajones[2].image = nil
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                self.lblStatusCajones[2].textColor = .red
+                                self.lblTextoDisponibilidad[2].textColor = .red
+                                self.imvCajones[2].image = .carUp
+                            }
+                        }
+                    }
                 }
+                
+                
             }
         }.resume()
-        
-        actualizarCajones()
     }
     
 
@@ -54,26 +141,6 @@ class DashboardViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-    
-    func actualizarCajones() {
-        let urlSession = URLSession.shared
-        let urlCajones = URL(string: "http://127.0.0.1:8000/api/estacion/672c1940e0a80c0b4f7ffdf7/datos/estacionamiento")
-        urlSession.dataTask(with: urlCajones!) {
-            data, response, error in
-            if let data = data {
-                if let cajones = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-                    DispatchQueue.main.async {
-                        //print(cajones)
-                        for (indice, cajon) in cajones.enumerated() {
-                            //print(String(describing: cajon["valor"]))
-                            self.cuadrosCajones[indice].textColor = cajon["valor"] as? String == "1" ? UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1) : .red
-                        }
-                    }
-                }
-            }
-            
-        }.resume()
-    }
 
 }
 
