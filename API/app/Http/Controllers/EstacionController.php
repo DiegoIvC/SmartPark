@@ -437,40 +437,25 @@ class EstacionController extends Controller
 
     public function obtenerDatosParking($id)
     {
-        $estacion = Estacion::find($id);
-        if (!$estacion) {
-            return 'Estación no encontrada'; // Retornar mensaje simple
-        }
+        // Obtenemos los datos de la estación
+        // Obtenemos los datos de la estación
+        $datos = json_decode($this->obtenerDatosEstacion($id)->getContent(), true);
 
         // Filtra los datos para obtener solo los que comienzan con "IN"
-        $datosIN = collect($estacion)->filter(function ($item) {
+        $datosIN = collect($datos)->filter(function ($item) {
             return isset($item['tipo']) && strpos($item['tipo'], 'IN') === 0;
         });
 
-        // Crear la estructura solicitada
-        $espacios = [];
-
-        // Recorremos los datos filtrados
-        $datosIN->each(function ($item, $index) use (&$espacios) {
-            // Aseguramos que el valor de cada espacio sea un número entero
-            $valor = isset($item['valor']) ? (int)$item['valor'] : 0;
-
-            // Construimos la clave dinámica y asignamos el valor correspondiente
-            $espacios['IN-' . ($index + 1)] = [
-                'valor' => $valor
-            ];
+        // Extraemos solo los valores correspondientes y reindexamos
+        $espacios = $datosIN->values()->mapWithKeys(function ($item, $index) {
+            return ['IN-' . ($index + 1) => ['valor' => (int)$item['valor']]];
         });
 
-        // Si faltan espacios (en caso de que no haya suficientes datos 'IN')
-        for ($i = count($espacios); $i < 3; $i++) {
-            $espacios['IN-' . ($i + 1)] = ['valor' => 0];  // Asignar 0 si no hay datos disponibles para ese espacio
-        }
-
-        // Construir la respuesta final
+        // Respuesta final
         $respuesta = [
-            'tipo' => 'IN',
             'espacios' => $espacios,
         ];
+
         return $respuesta;
     }
 
