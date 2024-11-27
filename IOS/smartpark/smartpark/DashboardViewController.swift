@@ -22,6 +22,7 @@ class DashboardViewController: UIViewController {
     
     @IBOutlet var viewsCajones: [UIView]!
     
+    @IBOutlet weak var btnAlarma: UIButton!
     
     
     override func viewDidLoad() {
@@ -130,6 +131,16 @@ class DashboardViewController: UIViewController {
             }
         }.resume()
     }
+    
+    func actualizarBoton(){
+        
+    }
+    
+    
+    @IBAction func btnApagarAlarma(_ sender: UIButton) {
+        
+    }
+    
     
 
     /*
