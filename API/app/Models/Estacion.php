@@ -10,8 +10,9 @@ class Estacion extends Eloquent
     protected $collection = 'estaciones';  // Nombre de la colección en MongoDB
     protected $fillable = [
         'nombre',
-        'datos',
+        'sensores',
         'usuarios',
+        'sensores'
     ];
 }
 

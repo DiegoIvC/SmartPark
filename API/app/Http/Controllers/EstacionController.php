@@ -349,7 +349,7 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
             return response()->json([
                 'error' => 'Los actuadores no tienen un formato válido'
             ], 400);
@@ -363,7 +363,7 @@ class EstacionController extends Controller
         $fecha = $request->input('fecha');
 
         // Hacer una copia del arreglo actuadores
-        $actuadores = $estacion->sensores;
+        $actuadores = $estacion->actuadores;
 
         // Actualizar los datos de los actuadores en la copia
         foreach ($actuadores as &$actuador) {
@@ -374,7 +374,7 @@ class EstacionController extends Controller
         }
 
         // Asignar la copia actualizada de nuevo al modelo
-        $estacion->sensores = $actuadores;
+        $estacion->actuadores = $actuadores;
         $estacion->save(); // Guardar cambios en la base de datos
 
         // Retorna la respuesta con los datos actualizados
@@ -598,14 +598,14 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
             return [
                 'error' => 'Los actuadores no tienen un formato válido'
             ];
         }
 
         // Filtra todos los actuadores cuyo tipo comience con 'AL'
-        $actuadoresAL = collect($estacion->sensores)->filter(function ($actuador) {
+        $actuadoresAL = collect($estacion->actuadores)->filter(function ($actuador) {
             return isset($actuador['tipo']) && str_starts_with($actuador['tipo'], 'AL');
         });
 
