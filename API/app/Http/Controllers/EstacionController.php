@@ -598,14 +598,14 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
             return [
                 'error' => 'Los actuadores no tienen un formato válido'
             ];
         }
 
         // Filtra todos los actuadores cuyo tipo comience con 'AL'
-        $actuadoresAL = collect($estacion->sensores)->filter(function ($actuador) {
+        $actuadoresAL = collect($estacion->actuadores)->filter(function ($actuador) {
             return isset($actuador['tipo']) && str_starts_with($actuador['tipo'], 'AL');
         });
 
