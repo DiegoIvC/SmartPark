@@ -78,6 +78,7 @@ class DashboardViewController: UIViewController {
                     
                     let espacio1 = espacios?["IN-1"]
                     if let espacio1 = espacio1 as? [String:Any] {
+                        print(espacio1)
                         if espacio1["valor"] as! Int == 0 {
                             DispatchQueue.main.async {
                                 self.lblStatusCajones[0].textColor = UIColor(red: 8/255, green: 164/255, blue: 0/255, alpha: 1)
@@ -146,7 +147,13 @@ class DashboardViewController: UIViewController {
                         print(sensorHumedad)
                         if let valor = sensorHumedad[0]["valor"] as? Int {
                             DispatchQueue.main.async {
-                                self.btnAlarma.isEnabled = valor == 1 ? true : false
+                                if valor == 1 {
+                                    self.btnAlarma.isEnabled = true
+                                    self.btnAlarma.backgroundColor = .red
+                                } else {
+                                    self.btnAlarma.isEnabled = false
+                                    self.btnAlarma.backgroundColor = .blue
+                                }
                             }
                         }
                     }
