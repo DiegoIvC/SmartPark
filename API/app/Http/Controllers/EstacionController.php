@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Estacion;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Tests\Database\EloquentRelationshipsTest\Car;
 
 class EstacionController extends Controller
@@ -43,12 +46,13 @@ class EstacionController extends Controller
     // Agregar un nuevo usuario a una estación
     public function agregarUsuario(Request $request, $id)
     {
+
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        // Validación de los campos incluyendo la imagen
+        // Validación de los campos incluyendo la imagen, username y contraseña
         $request->validate([
             'nombre' => 'required|string',
             'apellido_paterno' => 'required|string',
@@ -57,14 +61,17 @@ class EstacionController extends Controller
             'rfid' => 'required|string|unique:estacion,usuarios.rfid',
             'curp' => 'required|string|unique:estacion,usuarios.curp',
             'departamento' => 'required|string',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validar la imagen
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'username' => 'required|string|unique:estacion,usuarios.username',
+            'password' => 'nullable|string|min:8'
         ]);
 
-        // Validar unicidad de RFID y CURP dentro del array de usuarios
+        // Validar unicidad de RFID, CURP y username
         $usuarios = collect($estacion->usuarios);
 
         $existeRfid = $usuarios->contains('rfid', $request->rfid);
         $existeCurp = $usuarios->contains('curp', $request->curp);
+        $existeUsername = $usuarios->contains('username', $request->username);
 
         if ($existeRfid) {
             return response()->json(['message' => 'El RFID ya está registrado.'], 422);
@@ -74,23 +81,60 @@ class EstacionController extends Controller
             return response()->json(['message' => 'El CURP ya está registrado.'], 422);
         }
 
+        if ($existeUsername) {
+            return response()->json(['message' => 'El username ya está registrado.'], 422);
+        }
+
         // Procesar la imagen si se incluye
         $rutaImagen = null;
         if ($request->hasFile('imagen')) {
             $imagen = $request->file('imagen');
             $nombreArchivo = time() . '_' . $imagen->getClientOriginalName();
-            $rutaImagen = $imagen->storeAs('public/users/img', $nombreArchivo); // Guardar en storage/app/public/users/img
-            $rutaImagen = str_replace('public/', 'storage/', $rutaImagen); // Ajustar la ruta para acceso público
+            $rutaImagen = $imagen->storeAs('public/users/img', $nombreArchivo);
+            $rutaImagen = str_replace('public/', 'storage/', $rutaImagen);
         }
 
         // Crear el nuevo usuario con la ruta de la imagen
-        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp', 'rol', 'departamento');
-        $nuevoUsuario['imagen'] = $rutaImagen; // Agregar la ruta de la imagen
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp', 'rol', 'departamento', 'username');
+        $nuevoUsuario['imagen'] = $rutaImagen;
+        if ($request->password) {
+            $nuevoUsuario['password'] = Hash::make($request->password); // Hashear la contraseña
+        }
 
-        // Guardar en la colección de usuarios
         $estacion->push('usuarios', $nuevoUsuario);
 
         return response()->json($nuevoUsuario, 201);
+    }
+    public function autenticarUsuario(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        // Encuentra la estación que contiene el usuario
+        $estacion = Estacion::where('usuarios', 'elemMatch', ['username' => $request->username])->first();
+
+        if (!$estacion) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        // Busca el usuario dentro del array de usuarios de la estación
+        $usuario = collect($estacion->usuarios)->firstWhere('username', $request->username);
+
+        if (!$usuario) {
+            return response()->json(['message' => 'Usuario no encontrado en la estación'], 404);
+        }
+
+        // Verifica la contraseña
+        if (!Hash::check($request->password, $usuario['password'])) {
+            return response()->json(['message' => 'Contraseña incorrecta'], 401);
+        }
+
+        // Actualiza el estado de logueado
+        $usuario['logueado'] = true;
+
+        return response()->json($usuario, 200);
     }
 
 
@@ -349,7 +393,7 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
             return response()->json([
                 'error' => 'Los actuadores no tienen un formato válido'
             ], 400);
@@ -363,7 +407,7 @@ class EstacionController extends Controller
         $fecha = $request->input('fecha');
 
         // Hacer una copia del arreglo actuadores
-        $actuadores = $estacion->sensores;
+        $actuadores = $estacion->actuadores;
 
         // Actualizar los datos de los actuadores en la copia
         foreach ($actuadores as &$actuador) {
@@ -374,7 +418,7 @@ class EstacionController extends Controller
         }
 
         // Asignar la copia actualizada de nuevo al modelo
-        $estacion->sensores = $actuadores;
+        $estacion->actuadores = $actuadores;
         $estacion->save(); // Guardar cambios en la base de datos
 
         // Retorna la respuesta con los datos actualizados
@@ -437,40 +481,25 @@ class EstacionController extends Controller
 
     public function obtenerDatosParking($id)
     {
-        $estacion = Estacion::find($id);
-        if (!$estacion) {
-            return 'Estación no encontrada'; // Retornar mensaje simple
-        }
+        // Obtenemos los datos de la estación
+        // Obtenemos los datos de la estación
+        $datos = json_decode($this->obtenerDatosEstacion($id)->getContent(), true);
 
         // Filtra los datos para obtener solo los que comienzan con "IN"
-        $datosIN = collect($estacion)->filter(function ($item) {
+        $datosIN = collect($datos)->filter(function ($item) {
             return isset($item['tipo']) && strpos($item['tipo'], 'IN') === 0;
         });
 
-        // Crear la estructura solicitada
-        $espacios = [];
-
-        // Recorremos los datos filtrados
-        $datosIN->each(function ($item, $index) use (&$espacios) {
-            // Aseguramos que el valor de cada espacio sea un número entero
-            $valor = isset($item['valor']) ? (int)$item['valor'] : 0;
-
-            // Construimos la clave dinámica y asignamos el valor correspondiente
-            $espacios['IN-' . ($index + 1)] = [
-                'valor' => $valor
-            ];
+        // Extraemos solo los valores correspondientes y reindexamos
+        $espacios = $datosIN->values()->mapWithKeys(function ($item, $index) {
+            return ['IN-' . ($index + 1) => ['valor' => (int)$item['valor']]];
         });
 
-        // Si faltan espacios (en caso de que no haya suficientes datos 'IN')
-        for ($i = count($espacios); $i < 3; $i++) {
-            $espacios['IN-' . ($i + 1)] = ['valor' => 0];  // Asignar 0 si no hay datos disponibles para ese espacio
-        }
-
-        // Construir la respuesta final
+        // Respuesta final
         $respuesta = [
-            'tipo' => 'IN',
             'espacios' => $espacios,
         ];
+
         return $respuesta;
     }
 
@@ -598,14 +627,14 @@ class EstacionController extends Controller
         }
 
         // Verifica que actuadores sea un arreglo o colección
-        if (!is_array($estacion->sensores) && !($estacion->sensores instanceof \Illuminate\Support\Collection)) {
+        if (!is_array($estacion->actuadores) && !($estacion->actuadores instanceof \Illuminate\Support\Collection)) {
             return [
                 'error' => 'Los actuadores no tienen un formato válido'
             ];
         }
 
         // Filtra todos los actuadores cuyo tipo comience con 'AL'
-        $actuadoresAL = collect($estacion->sensores)->filter(function ($actuador) {
+        $actuadoresAL = collect($estacion->actuadores)->filter(function ($actuador) {
             return isset($actuador['tipo']) && str_starts_with($actuador['tipo'], 'AL');
         });
 
@@ -622,11 +651,31 @@ class EstacionController extends Controller
                 'valor' => isset($actuador['valor']) && $actuador['valor'] == "1" ? true : false,
             ];
         });
-
         // Retorna el formato requerido
         return [
             'HU' => $resultado->values()
         ];
     }
+
+    public function guardarImagenCamara(Request $request)
+    {
+        // Validar que el archivo recibido sea una imagen
+        $request->validate([
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Tamaño máximo: 2MB
+        ]);
+
+        // Guardar la imagen en la carpeta /public/cam
+        $path = $request->file('imagen')->store('public/cam');
+
+        // Obtener la URL pública de la imagen
+        $publicPath = Storage::url($path);
+
+        // Retornar la URL de la imagen
+        return response()->json([
+            'message' => 'Imagen subida con éxito',
+            'path' => $publicPath,
+        ]);
+    }
+
 
 }
