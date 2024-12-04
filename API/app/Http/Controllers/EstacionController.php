@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Estacion;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Tests\Database\EloquentRelationshipsTest\Car;
 
 class EstacionController extends Controller
@@ -43,12 +46,13 @@ class EstacionController extends Controller
     // Agregar un nuevo usuario a una estación
     public function agregarUsuario(Request $request, $id)
     {
+
         $estacion = Estacion::find($id);
         if (!$estacion) {
             return response()->json(['message' => 'Estación no encontrada'], 404);
         }
 
-        // Validación de los campos incluyendo la imagen
+        // Validación de los campos incluyendo la imagen, username y contraseña
         $request->validate([
             'nombre' => 'required|string',
             'apellido_paterno' => 'required|string',
@@ -57,14 +61,17 @@ class EstacionController extends Controller
             'rfid' => 'required|string|unique:estacion,usuarios.rfid',
             'curp' => 'required|string|unique:estacion,usuarios.curp',
             'departamento' => 'required|string',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validar la imagen
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'username' => 'required|string|unique:estacion,usuarios.username',
+            'password' => 'required|string|min:8'
         ]);
 
-        // Validar unicidad de RFID y CURP dentro del array de usuarios
+        // Validar unicidad de RFID, CURP y username
         $usuarios = collect($estacion->usuarios);
 
         $existeRfid = $usuarios->contains('rfid', $request->rfid);
         $existeCurp = $usuarios->contains('curp', $request->curp);
+        $existeUsername = $usuarios->contains('username', $request->username);
 
         if ($existeRfid) {
             return response()->json(['message' => 'El RFID ya está registrado.'], 422);
@@ -74,23 +81,60 @@ class EstacionController extends Controller
             return response()->json(['message' => 'El CURP ya está registrado.'], 422);
         }
 
+        if ($existeUsername) {
+            return response()->json(['message' => 'El username ya está registrado.'], 422);
+        }
+
         // Procesar la imagen si se incluye
         $rutaImagen = null;
         if ($request->hasFile('imagen')) {
             $imagen = $request->file('imagen');
             $nombreArchivo = time() . '_' . $imagen->getClientOriginalName();
-            $rutaImagen = $imagen->storeAs('public/users/img', $nombreArchivo); // Guardar en storage/app/public/users/img
-            $rutaImagen = str_replace('public/', 'storage/', $rutaImagen); // Ajustar la ruta para acceso público
+            $rutaImagen = $imagen->storeAs('public/users/img', $nombreArchivo);
+            $rutaImagen = str_replace('public/', 'storage/', $rutaImagen);
         }
 
         // Crear el nuevo usuario con la ruta de la imagen
-        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp', 'rol', 'departamento');
-        $nuevoUsuario['imagen'] = $rutaImagen; // Agregar la ruta de la imagen
+        $nuevoUsuario = $request->only('nombre', 'apellido_paterno', 'apellido_materno', 'rfid', 'curp', 'rol', 'departamento', 'username');
+        $nuevoUsuario['imagen'] = $rutaImagen;
+        if ($request->password) {
+            $nuevoUsuario['password'] = Hash::make($request->password); // Hashear la contraseña
+        }
 
-        // Guardar en la colección de usuarios
         $estacion->push('usuarios', $nuevoUsuario);
 
         return response()->json($nuevoUsuario, 201);
+    }
+    public function autenticarUsuario(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        // Encuentra la estación que contiene el usuario
+        $estacion = Estacion::where('usuarios', 'elemMatch', ['username' => $request->username])->first();
+
+        if (!$estacion) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        // Busca el usuario dentro del array de usuarios de la estación
+        $usuario = collect($estacion->usuarios)->firstWhere('username', $request->username);
+
+        if (!$usuario) {
+            return response()->json(['message' => 'Usuario no encontrado en la estación'], 404);
+        }
+
+        // Verifica la contraseña
+        if (!Hash::check($request->password, $usuario['password'])) {
+            return response()->json(['message' => 'Contraseña incorrecta'], 401);
+        }
+
+        // Actualiza el estado de logueado
+        $usuario['logueado'] = true;
+
+        return response()->json($usuario, 200);
     }
 
 
@@ -607,11 +651,31 @@ class EstacionController extends Controller
                 'valor' => isset($actuador['valor']) && $actuador['valor'] == "1" ? true : false,
             ];
         });
-
         // Retorna el formato requerido
         return [
             'HU' => $resultado->values()
         ];
     }
+
+    public function guardarImagenCamara(Request $request)
+    {
+        // Validar que el archivo recibido sea una imagen
+        $request->validate([
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Tamaño máximo: 2MB
+        ]);
+
+        // Guardar la imagen en la carpeta /public/cam
+        $path = $request->file('imagen')->store('public/cam');
+
+        // Obtener la URL pública de la imagen
+        $publicPath = Storage::url($path);
+
+        // Retornar la URL de la imagen
+        return response()->json([
+            'message' => 'Imagen subida con éxito',
+            'path' => $publicPath,
+        ]);
+    }
+
 
 }
