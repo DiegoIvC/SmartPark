@@ -63,7 +63,7 @@ class EstacionController extends Controller
             'departamento' => 'required|string',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'username' => 'required|string|unique:estacion,usuarios.username',
-            'password' => 'required|string|min:8'
+            'password' => 'nullable|string|min:8'
         ]);
 
         // Validar unicidad de RFID, CURP y username
