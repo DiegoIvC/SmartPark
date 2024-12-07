@@ -40,7 +40,6 @@ class DashboardViewController: UIViewController {
     func actualizarDashboardCada5Segundos() {
         Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             self.actualizarDashboard()
-            //print("actualizado")
         }
     }
     
