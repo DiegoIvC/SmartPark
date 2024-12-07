@@ -6,7 +6,7 @@ class AccessViewController: UIViewController {
 
     // Propiedades para la paginación
     var currentPage: Int = 0
-    let itemsPerPage: Int = 2
+    let itemsPerPage: Int = 5
     var totalItems: Int = 0
     var data: [(String, String, String, String, String)] = [] // Se añadió un campo para el departamento
 
@@ -30,7 +30,7 @@ class AccessViewController: UIViewController {
     }
 
     @objc func fetchDataFromAPI() {
-        guard let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/accesos") else {
+        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/accesos") else {
             showAlert(title: "Error", message: "URL no válida")
             return
         }
@@ -79,18 +79,26 @@ class AccessViewController: UIViewController {
     }
 
     // Función para formatear la fecha de manera simplificada
-    func formatDate(_ dateString: String) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        if let date = dateFormatter.date(from: dateString) {
+    func formatDate(_ fecha: String) -> String {
+        // Primero, configurar el formateador para el formato de entrada "dd-MM-yyyy HH:mm:ss"
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "dd-MM-yyyy HH:mm:ss"  // Formato de entrada
+
+        // Intenta convertir la fecha desde el formato de entrada
+        if let date = inputFormatter.date(from: fecha) {
+            // Luego, configurar el formateador de salida en el formato deseado
             let outputFormatter = DateFormatter()
-            outputFormatter.dateStyle = .long
-            outputFormatter.timeStyle = .short // Incluimos la hora
+            outputFormatter.dateFormat = "d MMMM yyyy h:mm a"  // Formato de salida deseado
+            outputFormatter.locale = Locale(identifier: "en_US")  // Para que el mes se muestre en inglés
+
+            // Retorna la fecha formateada
             return outputFormatter.string(from: date)
         } else {
-            return dateString // Si no se puede parsear, devolvemos la fecha original
+            // Si no puede convertir la fecha, devuelve la fecha original
+            return fecha
         }
     }
+
 
     func setupScrollViewContent(for page: Int) {
         // Limpiar el contenido previo
@@ -128,38 +136,65 @@ class AccessViewController: UIViewController {
         let nameLabel = UILabel()
         nameLabel.text = name
         nameLabel.font = UIFont.systemFont(ofSize: 16)
-        nameLabel.frame = CGRect(x: 80, y: 10, width: 200, height: 20)
+        nameLabel.frame = CGRect(x: 80, y: 10, width: 240, height: 20)
         itemView.addSubview(nameLabel)
 
-        // Crear y configurar el segundo label para el ID (rfid)
+        // Crear y configurar el primer label para el texto "RFID:"
+        let rfidLabel = UILabel()
+        rfidLabel.text = "RFID:"
+        
+        rfidLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        rfidLabel.textColor = UIColor(red: 0.0, green: 0.5, blue: 0.0, alpha: 1.0) // Verde fuerte
+        rfidLabel.frame = CGRect(x: 80, y: 30, width: 60, height: 20)
+        itemView.addSubview(rfidLabel)
+
+        // Crear y configurar el segundo label para el valor del ID (RFID)
         let idLabel = UILabel()
         idLabel.text = id
         idLabel.font = UIFont.systemFont(ofSize: 14)
-        idLabel.textColor = .gray
-        idLabel.frame = CGRect(x: 80, y: 30, width: 200, height: 20)
+        idLabel.textColor = .gray // Color predeterminado para el valor
+        idLabel.frame = CGRect(x: 120, y: 30, width: 200, height: 20)
         itemView.addSubview(idLabel)
 
-        // Crear y configurar el tercer label para el CURP
-        let curpLabel = UILabel()
-        curpLabel.text = curp
-        curpLabel.font = UIFont.systemFont(ofSize: 14)
-        curpLabel.textColor = .gray
-        curpLabel.frame = CGRect(x: 80, y: 50, width: 200, height: 20)
-        itemView.addSubview(curpLabel)
 
-        // Crear y configurar el cuarto label para el departamento
-        let departmentLabel = UILabel()
-        departmentLabel.text = department
-        departmentLabel.font = UIFont.systemFont(ofSize: 14)
-        departmentLabel.textColor = .gray
-        departmentLabel.frame = CGRect(x: 80, y: 70, width: 200, height: 20)
-        itemView.addSubview(departmentLabel)
+        // Crear y configurar el primer label para el texto "CURP:" en negrita
+        let curpLabelTitle = UILabel()
+        curpLabelTitle.text = "Curp:"
+        curpLabelTitle.font = UIFont.systemFont(ofSize: 14) // Negrita
+        curpLabelTitle.textColor = .black // Color negro para la palabra CURP
+        curpLabelTitle.frame = CGRect(x: 80, y: 50, width: 60, height: 20)
+        itemView.addSubview(curpLabelTitle)
+
+        // Crear y configurar el segundo label para el valor del CURP
+        let curpLabelValue = UILabel()
+        curpLabelValue.text = curp
+        curpLabelValue.font = UIFont.systemFont(ofSize: 14)
+        curpLabelValue.textColor = .gray // Color gris para el valor
+        curpLabelValue.frame = CGRect(x: 120, y: 50, width: 200, height: 20)
+        itemView.addSubview(curpLabelValue)
+
+
+        // Crear y configurar el primer label para el texto "Departamento:" sin negrita
+        let departmentLabelTitle = UILabel()
+        departmentLabelTitle.text = "Dep:"
+        departmentLabelTitle.font = UIFont.systemFont(ofSize: 14) // Usamos el font normal, sin negrita
+        departmentLabelTitle.textColor = .black // Color negro para la palabra "Departamento"
+        departmentLabelTitle.frame = CGRect(x: 80, y: 70, width: 100, height: 20)
+        itemView.addSubview(departmentLabelTitle)
+
+        // Crear y configurar el segundo label para el valor del departamento
+        let departmentLabelValue = UILabel()
+        departmentLabelValue.text = department
+        departmentLabelValue.font = UIFont.systemFont(ofSize: 14)
+        departmentLabelValue.textColor = .gray // Color gris para el valor
+        departmentLabelValue.frame = CGRect(x: 120, y: 70, width: 200, height: 20)
+        itemView.addSubview(departmentLabelValue)
 
         // Crear y configurar el quinto label para la fecha
         let dateLabel = UILabel()
         dateLabel.text = date
         dateLabel.font = UIFont.systemFont(ofSize: 14)
-        dateLabel.textColor = .gray
+        dateLabel.textColor = .systemBlue
         dateLabel.frame = CGRect(x: 80, y: 90, width: 200, height: 20) // Ajustamos la posición por la nueva altura
         itemView.addSubview(dateLabel)
 

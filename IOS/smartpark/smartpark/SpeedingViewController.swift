@@ -1,14 +1,18 @@
 import UIKit
+import SystemConfiguration
 
 class SpeedingViewController: UIViewController {
-
-
     @IBOutlet weak var scrollView: UIScrollView!
+
     // Propiedades para la paginación
     var currentPage: Int = 0
     let itemsPerPage: Int = 5
     var totalItems: Int = 0
-    var data: [(String, Bool, Bool)] = []
+    var data: [(String, String, String)] = [] // (imagen, velocidad, fecha)
+
+    // Elementos para el paginador
+    var paginatorLabel: UILabel?
+    var dataRefreshTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,57 +21,91 @@ class SpeedingViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = true
 
-
-
-        // Datos de ejemplo
-        data = [
-            ("Este es mi nombre juan Angel castañeda Chavez", true, false),
-            ("Nombre 2", false, true),
-            ("Nombre 3", true, false),
-            ("Nombre 4", true, false),
-            ("Nombre 5", true, false),
-            ("Nombre 6", true, false),
-            ("Nombre 7", true, false),
-            ("Nombre 8", false, true),
-            ("Nombre 9", true, false),
-            ("Nombre 10", true, false),
-            ("Nombre 11", false, true),
-            ("Nombre 2", false, true),
-            ("Nombre 3", true, false),
-            ("Nombre 4", true, false),
-            ("Nombre 5", true, false),
-            ("Nombre 6", true, false),
-            ("Nombre 7", true, false),
-            ("Nombre 8", false, true),
-            ("Nombre 9", true, false),
-            ("Nombre 10", true, false),
-            ("Nombre 11", false, true),
-            ("Nombre 2", false, true),
-            ("Nombre 3", true, false),
-            ("Nombre 4", true, false),
-            ("Nombre 5", true, false),
-            ("Nombre 6", true, false),
-            ("Nombre 7", true, false),
-            ("Nombre 8", false, true),
-            ("Nombre 9", true, false),
-            ("Nombre 10", true, false),
-            ("Nombre 11", false, true),
-            ("Nombre 12", true, false)
-            // Agrega más datos aquí si deseas
-        ]
-
-        totalItems = data.count
-
-        // Llamada a función para crear el contenido de la primera página
-        setupScrollViewContent(for: currentPage)
-
-        // Configurar paginador
-        setupPaginator()
+        // Verificar la conexión a internet antes de hacer la solicitud
+        if isInternetAvailable() {
+            fetchData()
+            // Iniciar el temporizador para refrescar los datos periódicamente
+            startDataRefreshTimer()
+        } else {
+            showErrorMessage("No hay conexión a internet.")
+        }
     }
 
-   
+    func isInternetAvailable() -> Bool {
+        let reachability = SCNetworkReachabilityCreateWithName(nil, "www.apple.com")
+        var flags = SCNetworkReachabilityFlags()
+        if SCNetworkReachabilityGetFlags(reachability!, &flags) == false {
+            return false
+        }
 
-   
+        let isReachable = flags.contains(.reachable)
+        let needsConnection = flags.contains(.connectionRequired)
+
+        return isReachable && !needsConnection
+    }
+
+    @objc func fetchData() {
+        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/actuadores/velocimetro/camara") else {
+            print("URL no válida")
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Error en la solicitud: \(error)")
+                DispatchQueue.main.async {
+                    self.showErrorMessage("Hubo un error al obtener los datos.")
+                }
+                return
+            }
+
+            guard let data = data else {
+                print("Datos vacíos")
+                DispatchQueue.main.async {
+                    self.showErrorMessage("No se recibieron datos.")
+                }
+                return
+            }
+
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let items = json["CA-1"] as? [[String: Any]] {
+
+                    // Convertir los datos a tu tipo esperado
+                    let newData = items.compactMap { item -> (String, String, String)? in
+                        // Extraemos valores del diccionario de manera segura
+                        guard let imagen = item["imagen"] as? String,
+                              let velocidad = item["velocidad"] as? String,
+                              let fecha = item["fecha"] as? String else {
+                            return nil // Si falta algún valor, ignoramos este item
+                        }
+                        return (imagen, velocidad, fecha) // Devolvemos la tupla con los valores correctos
+                    }
+
+                    DispatchQueue.main.async {
+                        // Usar elementsEqual para comparar los arrays de tuplas
+                        if !newData.elementsEqual(self.data, by: { $0 == $1 }) {
+                            self.data = newData
+                            self.totalItems = self.data.count
+                            self.setupScrollViewContent(for: self.currentPage)
+                            self.setupPaginator()
+                        }
+                    }
+                }
+            } catch {
+                print("Error al parsear JSON: \(error)")
+                DispatchQueue.main.async {
+                    self.showErrorMessage("Error al procesar los datos.")
+                }
+            }
+
+        }
+
+        task.resume()
+    }
+
     func setupScrollViewContent(for page: Int) {
         // Limpiar el contenido previo
         scrollView.subviews.forEach { $0.removeFromSuperview() }
@@ -78,151 +116,116 @@ class SpeedingViewController: UIViewController {
         for index in startIndex..<endIndex {
             let yPosition = CGFloat(index % itemsPerPage) * (80 + 10)
 
-            // Crear la vista de cada elemento
-            let itemView = createItemView(name: data[index].0, isCheckedSalida: data[index].1, isCheckedEntrada: data[index].2)
+            let item = data[index]
+            let itemView = createItemView(imageURL: item.0, velocidad: item.1, fecha: item.2)
             itemView.frame = CGRect(x: 0, y: yPosition, width: scrollView.frame.width, height: 80)
 
             scrollView.addSubview(itemView)
         }
 
         // Ajustar el tamaño del contenido del scrollView
-        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: CGFloat(itemsPerPage) * (80 + 10))
+        let totalHeight = CGFloat(min(totalItems, (page + 1) * itemsPerPage)) * (80 + 10)
+        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: totalHeight)
     }
 
-    func createItemView(name: String, isCheckedSalida: Bool, isCheckedEntrada: Bool) -> UIView {
+    func createItemView(imageURL: String, velocidad: String, fecha: String) -> UIView {
         let itemView = UIView()
 
-        // Crear y configurar la imagen de perfil
         let profileImageView = UIImageView()
-        profileImageView.image = UIImage(systemName: "photo.fill")
-        profileImageView.tintColor = .blue
         profileImageView.contentMode = .scaleAspectFit
-        profileImageView.frame = CGRect(x: 10, y: 10, width: 60, height: 60)
+        profileImageView.frame = CGRect(x: 10, y: 10, width: 100, height: 100)
+        profileImageView.layer.cornerRadius = 30
+        profileImageView.clipsToBounds = true
         itemView.addSubview(profileImageView)
 
-        // Crear y configurar el primer label para el nombre
-       // let nameLabel = UILabel()
-        //nameLabel.text = name
-        //nameLabel.font = UIFont.systemFont(ofSize: 13)
-        //nameLabel.frame = CGRect(x: 80, y: 20, width: 100, height: 30)
-        //itemView.addSubview(nameLabel)
+        // Configurar el tap gesture para la imagen
+        profileImageView.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped(_:)))
+        profileImageView.addGestureRecognizer(tapGesture)
 
-        // Crear y configurar los labels para "Velocidad:", "Fecha:" y "Advertido:" con sus valores
+        if let url = URL(string: imageURL) {
+            let task = URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let data = data {
+                    DispatchQueue.main.async {
+                        profileImageView.image = UIImage(data: data)
+                    }
+                }
+            }
+            task.resume()
+        }
+
         let velocidadLabel = UILabel()
-        velocidadLabel.text = "Velocidad:"
+        let fullText = "Velocidad: \(velocidad) km/h"
+        let attributedString = NSMutableAttributedString(string: fullText)
+
+        if let range = fullText.range(of: velocidad) {
+            let nsRange = NSRange(range, in: fullText)
+            attributedString.addAttribute(.foregroundColor, value: UIColor.red, range: nsRange)
+        }
+
+        velocidadLabel.attributedText = attributedString
         velocidadLabel.font = UIFont.systemFont(ofSize: 14)
-        velocidadLabel.textColor = .gray
-        velocidadLabel.frame = CGRect(x: 80, y: 10, width: 80, height: 20)
+        velocidadLabel.frame = CGRect(x: 120, y: 30, width: 200, height: 20)
         itemView.addSubview(velocidadLabel)
 
-        let velocidadValueLabel = UILabel()
-        velocidadValueLabel.text = "80 km/h" // Cambia el valor según lo que necesites
-        velocidadValueLabel.font = UIFont.systemFont(ofSize: 14)
-        velocidadValueLabel.frame = CGRect(x: 160, y: 10, width: 100, height: 20)
-        itemView.addSubview(velocidadValueLabel)
-
+        let formattedDate = formatDate(fecha)
         let fechaLabel = UILabel()
-        fechaLabel.text = "Fecha:"
+        fechaLabel.text = formattedDate
         fechaLabel.font = UIFont.systemFont(ofSize: 14)
-        fechaLabel.textColor = .gray
-        fechaLabel.frame = CGRect(x: 80, y: 30, width: 80, height: 20)
+        fechaLabel.textColor = .systemBlue
+        fechaLabel.frame = CGRect(x: 120, y: 60, width: 200, height: 20)
         itemView.addSubview(fechaLabel)
-
-        let fechaValueLabel = UILabel()
-        fechaValueLabel.text = "01/11/2024" // Cambia el valor según lo que necesites
-        fechaValueLabel.font = UIFont.systemFont(ofSize: 14)
-        fechaValueLabel.frame = CGRect(x: 160, y: 30, width: 100, height: 20)
-        itemView.addSubview(fechaValueLabel)
-
-        let advertidoLabel = UILabel()
-        advertidoLabel.text = "Advertido:"
-        advertidoLabel.font = UIFont.systemFont(ofSize: 14)
-        advertidoLabel.textColor = .gray
-        advertidoLabel.frame = CGRect(x: 80, y: 50, width: 80, height: 20)
-        itemView.addSubview(advertidoLabel)
-
-        let advertidoValueLabel = UILabel()
-        advertidoValueLabel.text = "Sí" // Cambia el valor según lo que necesites
-        advertidoValueLabel.font = UIFont.systemFont(ofSize: 14)
-        advertidoValueLabel.frame = CGRect(x: 160, y: 50, width: 100, height: 20)
-        itemView.addSubview(advertidoValueLabel)
-        
-        let verDetallesButton = UIButton(type: .system)
-        verDetallesButton.setTitle("Detalles", for: .normal)
-        verDetallesButton.setTitleColor(.white, for: .normal)
-        verDetallesButton.backgroundColor = .blue // Fondo azul
-        verDetallesButton.contentHorizontalAlignment = .center // Alineación a la derecha dentro del botón
-
-        // Configuración del frame para colocar el botón a la derecha de la pantalla
-        let screenWidth = UIScreen.main.bounds.width
-        verDetallesButton.layer.cornerRadius = 10 // Bordes redondeados
-        verDetallesButton.clipsToBounds = true // Asegura que los bordes se recorten
-        verDetallesButton.frame = CGRect(x: screenWidth - 110, y: 20, width: 100, height: 30) // Ajusta 'x' para la posición en la derecha
-
-        // Añadir el botón a la vista
-        itemView.addSubview(verDetallesButton)
 
         return itemView
     }
-    
-    // Acción para el botón Ver Detalles
-    @objc func verDetalles(_ sender: UIButton) {
-        // Código para mostrar los detalles
-        print("Ver Detalles presionado")
-    }
-    
-    @objc func toggleAusente(_ sender: UIButton) {
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
+
+    func formatDate(_ fecha: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = dateFormatter.date(from: fecha) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "d MMMM yyyy h:mm a"
+            return outputFormatter.string(from: date)
         } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+            return fecha
         }
     }
 
-    @objc func toggleAsistiendo(_ sender: UIButton) {
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+    @objc func imageTapped(_ sender: UITapGestureRecognizer) {
+        guard let tappedImageView = sender.view as? UIImageView else { return }
+        if let image = tappedImageView.image {
+            showFullScreenImage(image: image)
         }
     }
 
+    func showFullScreenImage(image: UIImage) {
+        let fullScreenView = UIView(frame: self.view.bounds)
+        fullScreenView.isUserInteractionEnabled = true
 
-    @objc func toggleSalida(_ sender: UIButton) {
-        guard let itemView = sender.superview else { return }
+        let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = fullScreenView.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        fullScreenView.addSubview(blurEffectView)
 
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        let fullScreenImageView = UIImageView(image: image)
+        fullScreenImageView.frame = fullScreenView.bounds
+        fullScreenImageView.contentMode = .scaleAspectFit
+        fullScreenView.addSubview(fullScreenImageView)
 
-            if let entradaButton = itemView.viewWithTag(2) as? UIButton {
-                entradaButton.tintColor = .gray
-                entradaButton.setImage(UIImage(systemName: "circle"), for: .normal)
-            }
-        }
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("✖️", for: .normal)
+        closeButton.frame = CGRect(x: fullScreenView.frame.width - 60, y: 40, width: 40, height: 40)
+        closeButton.addTarget(self, action: #selector(dismissFullScreenImage(_:)), for: .touchUpInside)
+        fullScreenView.addSubview(closeButton)
+
+        fullScreenView.tag = 999
+        self.view.addSubview(fullScreenView)
     }
 
-    @objc func toggleEntrada(_ sender: UIButton) {
-        guard let itemView = sender.superview else { return }
-
-        if sender.tintColor == .green {
-            sender.tintColor = .gray
-            sender.setImage(UIImage(systemName: "circle"), for: .normal)
-        } else {
-            sender.tintColor = .green
-            sender.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-
-            if let salidaButton = itemView.viewWithTag(1) as? UIButton {
-                salidaButton.tintColor = .gray
-                salidaButton.setImage(UIImage(systemName: "circle"), for: .normal)
-            }
+    @objc func dismissFullScreenImage(_ sender: UIButton) {
+        if let fullScreenView = self.view.viewWithTag(999) {
+            fullScreenView.removeFromSuperview()
         }
     }
 
@@ -232,14 +235,21 @@ class SpeedingViewController: UIViewController {
 
         let previousButton = UIButton(type: .system)
         previousButton.setTitle("Anterior", for: .normal)
-        previousButton.frame = CGRect(x: 20, y: 10, width: 80, height: 30)
+        previousButton.frame = CGRect(x: 10, y: 10, width: 100, height: 30)
         previousButton.addTarget(self, action: #selector(previousPage), for: .touchUpInside)
-        paginatorView.addSubview(previousButton)
+
+        paginatorLabel = UILabel()
+        paginatorLabel?.frame = CGRect(x: 120, y: 10, width: 150, height: 30)
+        paginatorLabel?.textAlignment = .center
+        paginatorLabel?.text = "Página \(currentPage + 1) de \(Int(ceil(Double(totalItems) / Double(itemsPerPage))))"
 
         let nextButton = UIButton(type: .system)
         nextButton.setTitle("Siguiente", for: .normal)
-        nextButton.frame = CGRect(x: paginatorView.frame.width - 100, y: 10, width: 80, height: 30)
+        nextButton.frame = CGRect(x: self.view.frame.width - 110, y: 10, width: 100, height: 30)
         nextButton.addTarget(self, action: #selector(nextPage), for: .touchUpInside)
+
+        paginatorView.addSubview(previousButton)
+        paginatorView.addSubview(paginatorLabel!)
         paginatorView.addSubview(nextButton)
 
         self.view.addSubview(paginatorView)
@@ -249,14 +259,26 @@ class SpeedingViewController: UIViewController {
         if currentPage > 0 {
             currentPage -= 1
             setupScrollViewContent(for: currentPage)
+            paginatorLabel?.text = "Página \(currentPage + 1) de \(Int(ceil(Double(totalItems) / Double(itemsPerPage))))"
         }
     }
 
     @objc func nextPage() {
-        if (currentPage + 1) * itemsPerPage < totalItems {
+        if currentPage < (totalItems / itemsPerPage) {
             currentPage += 1
             setupScrollViewContent(for: currentPage)
+            paginatorLabel?.text = "Página \(currentPage + 1) de \(Int(ceil(Double(totalItems) / Double(itemsPerPage))))"
         }
+    }
+
+    @objc func startDataRefreshTimer() {
+        dataRefreshTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(fetchData), userInfo: nil, repeats: true)
+    }
+
+    func showErrorMessage(_ message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
