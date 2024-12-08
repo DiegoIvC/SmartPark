@@ -204,7 +204,7 @@ class AddUserViewController: UIViewController, UIImagePickerControllerDelegate, 
 
 
     func enviarSolicitud(data: [String: Any], image: UIImage?) {
-        guard let url = URL(string: "http://3.147.18/api/estacion/673a970b8548904611656030/usuario") else {
+        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/usuario") else {
             mostrarAlerta(titulo: "Error", mensaje: "URL no válida.")
             return
         }
