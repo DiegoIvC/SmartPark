@@ -18,7 +18,6 @@ class HomeViewController: UIViewController {
     
     @IBOutlet var labelNombreCajones: [UILabel]!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -42,7 +41,7 @@ class HomeViewController: UIViewController {
     
     func actualizarCajones() {
         let urlSession = URLSession.shared
-        let urlCajones = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/datos/estacionamiento")
+        let urlCajones = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/datos/estacionamiento")
         urlSession.dataTask(with: urlCajones!) {
             data, response, error in
             if let data = data {

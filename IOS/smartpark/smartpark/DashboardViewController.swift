@@ -45,7 +45,7 @@ class DashboardViewController: UIViewController {
     
     func actualizarDashboard() {
         let urlSession = URLSession.shared
-        let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/dashboard")!
+        let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/dashboard")!
         
         urlSession.dataTask(with: url) { data, response, error in
             if let data = data {
@@ -137,7 +137,7 @@ class DashboardViewController: UIViewController {
     
     func ButtonStatus(){
         let urlSession = URLSession.shared
-        let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/actuadores/alarma/estatus")
+        let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/actuadores/alarma/estatus")
         
         urlSession.dataTask(with: url!) { (data, response, error) in
             if let data = data {
