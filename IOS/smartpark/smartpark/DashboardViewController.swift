@@ -9,6 +9,7 @@ import UIKit
 
 class DashboardViewController: UIViewController {
 
+    @IBOutlet weak var tabBar: UITabBarItem!
     @IBOutlet weak var lblUltimaHoraLuz: UILabel!
     @IBOutlet weak var lblTiempoTotalLuz: UILabel!
     @IBOutlet weak var lblUltimaAlarmaHumo: UILabel!
@@ -27,6 +28,12 @@ class DashboardViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let iniciarSesion = IniciarSesion.iniciarSesionShared()
+        
+        if !iniciarSesion.rolesPermitidos.contains(iniciarSesion.rol) {
+            alerta("Permiso denegado", "No puedes acceder a esta vista")
+        }
         
         for cajon in viewsCajones {
             cajon.layer.cornerRadius = 10
@@ -135,6 +142,20 @@ class DashboardViewController: UIViewController {
         ButtonStatus()
     }
     
+    func alerta(_ titulo: String, _ mensaje: String) {
+        print("alerta")
+        let alerta = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
+        
+        let ok = UIAlertAction(title: "Aceptar", style: .default) {
+            _ in
+            self.tabBarController?.selectedIndex = 0
+            self.dismiss(animated: true)
+        }
+        
+        alerta.addAction(ok)
+        self.present(alerta, animated: true)
+    }
+    
     func ButtonStatus(){
         let urlSession = URLSession.shared
         let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/actuadores/alarma/estatus")
@@ -170,7 +191,7 @@ class DashboardViewController: UIViewController {
         print(fechaFormateada)
         
         let urlSession = URLSession.shared
-        guard let url = URL(string: "http://127.0.0.1:8000/api/estacion/673a970b8548904611656030/actuadores/alarma/apagar") else { return }
+        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/actuadores/alarma/apagar") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
         

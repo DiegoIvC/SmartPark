@@ -52,7 +52,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             }
             
             iniciarSesion.login(txtNombre, txtContraseña)
-            
+            print(iniciarSesion.autenticado)
             if iniciarSesion.autenticado {
                 iniciarSesion.username = txtNombre.text!
                 iniciarSesion.password = txtContraseña.text!

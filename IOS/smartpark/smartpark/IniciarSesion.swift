@@ -11,6 +11,8 @@ class IniciarSesion: NSObject {
     var username: String
     var password: String
     var autenticado: Bool
+    var rol: String
+    var rolesPermitidos: [String]
     
     static var iniciarSesionStatic: IniciarSesion!
     
@@ -18,6 +20,8 @@ class IniciarSesion: NSObject {
         username = ""
         password = ""
         autenticado = false
+        rol = ""
+        rolesPermitidos = ["administrador", "soporte"]
     }
     
     static func iniciarSesionShared() -> IniciarSesion {
@@ -27,10 +31,10 @@ class IniciarSesion: NSObject {
         return iniciarSesionStatic
     }
     
-    func login(_ txtNombre: UITextField, _ txtContraseña: UITextField) {
+    func login(_ txtNombre: UITextField, _ txtContraseña: UITextField) -> Bool {
         let iniciarSesion = IniciarSesion.iniciarSesionShared()
         let urlSession = URLSession.shared
-        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/login/usuario") else { return }
+        guard let url = URL(string: "http://3.147.187.80/api/estacion/673a970b8548904611656030/login/usuario") else { return false }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
@@ -41,33 +45,53 @@ class IniciarSesion: NSObject {
         let jsonData = try? JSONSerialization.data(withJSONObject: json, options: [])
         
         request.httpBody = jsonData
+        let semaphore = DispatchSemaphore(value: 0)
+            
+        var result = false
+        
+        // Realizamos la petición asíncrona
         urlSession.dataTask(with: request) { data, response, error in
+            defer {
+                // Liberamos el semáforo al terminar
+                semaphore.signal()
+            }
+            
             if let data = data {
                 if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print(data)
+                    print("data: \(json)")
+                    iniciarSesion.rol = json["rol"] as? String ?? "Sin rol"
                 }
             }
             
-            if let response = response {
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("HTTP Response: \(httpResponse.statusCode)")
-                    if httpResponse.statusCode == 200 {
-                        iniciarSesion.autenticado = true
-                    }
+            if let httpResponse = response as? HTTPURLResponse {
+                print("HTTP Response: \(httpResponse.statusCode)")
+                if httpResponse.statusCode == 200 {
+                    iniciarSesion.autenticado = true
+                    result = true
+                } else {
+                    iniciarSesion.autenticado = false
+                    result = false
                 }
             }
             
             if let error = error {
-                if let urlError = error as? URLError {
-                    print(urlError.localizedDescription)
-                }
+                print("Error: \(error.localizedDescription)")
+                iniciarSesion.autenticado = false
+                result = false
             }
+            
         }.resume()
+        
+        // Esperamos hasta que el semáforo se libere, bloqueando el hilo actual
+        _ = semaphore.wait(timeout: .distantFuture)
+        
+        // Para este punto, la respuesta HTTP ya se ha procesado y result contiene el valor final
+        return result
     }
     
     func abrirArchivo() {
         let iniciarSesion = IniciarSesion.iniciarSesionShared()
-        let ruta = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] + "/Puntaje.plist"
+        let ruta = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] + "/Login.plist"
         let urlArchivo = URL(fileURLWithPath: ruta)
         print("Ruta abrir archivo: \(urlArchivo)")
         
@@ -78,6 +102,7 @@ class IniciarSesion: NSObject {
             iniciarSesion.username = diccionario["username"] as! String
             iniciarSesion.password = diccionario["password"] as! String
             iniciarSesion.autenticado = diccionario["autenticado"] as! Bool
+            iniciarSesion.rol = diccionario["rol"] as! String
             print(diccionario)
             
         } catch {
@@ -88,7 +113,7 @@ class IniciarSesion: NSObject {
     
     func guardarArchivo() {
         let iniciarSesion = IniciarSesion.iniciarSesionShared()
-        let ruta = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] + "/Puntaje.plist"
+        let ruta = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] + "/Login.plist"
         let urlArchivo = URL(fileURLWithPath: ruta)
         print("Ruta guardar archivo \(urlArchivo)")
         do {
@@ -96,7 +121,8 @@ class IniciarSesion: NSObject {
             [
                 "username": iniciarSesion.username,
                 "password": iniciarSesion.password,
-                "autenticado": iniciarSesion.autenticado
+                "autenticado": iniciarSesion.autenticado,
+                "rol": iniciarSesion.rol
             ]
             
             let archivo = try PropertyListSerialization.data(fromPropertyList: diccionario, format: .xml, options: NSPropertyListWriteStreamError)

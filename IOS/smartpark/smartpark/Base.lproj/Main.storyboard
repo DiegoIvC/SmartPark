@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Hwg-YB-oDH">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="bQb-1i-eLt">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Item 2-->
+        <!--Dashboard-->
         <scene sceneID="0fB-L4-ldU">
             <objects>
                 <viewController id="1is-tr-PlZ" customClass="DashboardViewController" customModule="smartpark" customModuleProvider="target" sceneMemberID="viewController">
@@ -372,13 +372,14 @@
                             <constraint firstItem="hbe-2Z-C5v" firstAttribute="centerX" secondItem="yys-ZT-rt2" secondAttribute="centerX" id="xlQ-3Y-Mwh"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item 2" id="YBc-3y-tbC"/>
+                    <tabBarItem key="tabBarItem" tag="1" title="Dashboard" image="dashboard" id="YBc-3y-tbC"/>
                     <connections>
                         <outlet property="btnAlarma" destination="Hmk-rc-Jfp" id="6GE-BC-3J3"/>
                         <outlet property="lblTiempoTotalLuz" destination="41D-eN-oeV" id="HAo-gI-Yn0"/>
                         <outlet property="lblUltimaAlarmaHumo" destination="IQw-Os-40V" id="Wkc-HB-s8b"/>
                         <outlet property="lblUltimaHoraLuz" destination="oZd-jJ-7DV" id="4b2-IU-vy0"/>
                         <outlet property="lblUltimoAcceso" destination="eD5-Kg-j3S" id="1lY-xq-bVK"/>
+                        <outlet property="tabBar" destination="YBc-3y-tbC" id="oyG-fI-5uj"/>
                         <outletCollection property="lblStatusCajones" destination="fg6-rN-XQ5" collectionClass="NSMutableArray" id="Z1A-GN-D80"/>
                         <outletCollection property="lblStatusCajones" destination="yDi-ZT-XtO" collectionClass="NSMutableArray" id="Fmy-Qq-5nd"/>
                         <outletCollection property="lblStatusCajones" destination="4K6-gY-gDx" collectionClass="NSMutableArray" id="iGU-bq-kWZ"/>
@@ -397,7 +398,7 @@
             </objects>
             <point key="canvasLocation" x="-673" y="-26"/>
         </scene>
-        <!--Inicio-->
+        <!--Cajones-->
         <scene sceneID="q78-pB-Vtq">
             <objects>
                 <viewController id="iY5-Tf-T1j" customClass="HomeViewController" customModule="smartpark" customModuleProvider="target" sceneMemberID="viewController">
@@ -626,7 +627,7 @@
                             <constraint firstItem="dAq-6j-j8A" firstAttribute="leading" secondItem="gE0-jN-vh9" secondAttribute="leading" id="tbC-lI-kUX"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Inicio" image="home" id="27U-zw-zEC"/>
+                    <tabBarItem key="tabBarItem" title="Cajones" image="car" id="27U-zw-zEC"/>
                     <connections>
                         <outletCollection property="labelEstadoCajones" destination="s7m-yQ-4XE" collectionClass="NSMutableArray" id="G0s-2M-Fpl"/>
                         <outletCollection property="labelEstadoCajones" destination="dZU-ge-6SF" collectionClass="NSMutableArray" id="J6i-An-vrH"/>
@@ -648,6 +649,31 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WTA-D2-P4e" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-707.44186046511629" y="-718.45493562231763"/>
+        </scene>
+        <!--Splash View Controller-->
+        <scene sceneID="u5c-mJ-XXd">
+            <objects>
+                <viewController id="bQb-1i-eLt" customClass="SplashViewController" customModule="smartpark" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="uIo-O8-og3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="logosmartpark" translatesAutoresizingMaskIntoConstraints="NO" id="kPx-Fj-CCw">
+                                <rect key="frame" x="58" y="308" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="c4a-hA-pBB"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <connections>
+                        <outlet property="imvSplash" destination="kPx-Fj-CCw" id="ati-60-eQq"/>
+                        <segue destination="Hwg-YB-oDH" kind="presentation" identifier="sgSplash" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="ech-lE-EXC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8wt-i7-qzt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3389" y="-376"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="GZU-qB-7IQ">
@@ -990,7 +1016,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="home" width="32" height="32"/>
+        <image name="car" width="32" height="32"/>
+        <image name="dashboard" width="32" height="32"/>
+        <image name="logosmartpark" width="300" height="235"/>
         <namedColor name="AccentColor">
             <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

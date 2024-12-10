@@ -10,6 +10,7 @@
 		A065BE242CED7DAC002FC39E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A065BE232CED7DAC002FC39E /* LoginViewController.swift */; };
 		A08B1A3C2CE1615400D2EAA3 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */; };
 		A0A25E642CDDD75B001E1C54 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */; };
+		A0A519932D08C2AE007C7549 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A519922D08C2AE007C7549 /* SplashViewController.swift */; };
 		A0E8D5BB2D03E906003DB725 /* IniciarSesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E8D5BA2D03E906003DB725 /* IniciarSesion.swift */; };
 		A0E8D5E62D03FBF0003DB725 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E8D5E52D03FBF0003DB725 /* TabBarViewController.swift */; };
 		C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00BF5132CDB52ED0099B9A7 /* User.swift */; };
@@ -28,6 +29,7 @@
 		A065BE232CED7DAC002FC39E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
 		A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		A0A519922D08C2AE007C7549 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		A0E8D5BA2D03E906003DB725 /* IniciarSesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IniciarSesion.swift; sourceTree = "<group>"; };
 		A0E8D5E52D03FBF0003DB725 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		C00BF5132CDB52ED0099B9A7 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 				A0A25E632CDDD75B001E1C54 /* HomeViewController.swift */,
 				A065BE232CED7DAC002FC39E /* LoginViewController.swift */,
 				A0E8D5E52D03FBF0003DB725 /* TabBarViewController.swift */,
+				A0A519922D08C2AE007C7549 /* SplashViewController.swift */,
 				A0E8D5BA2D03E906003DB725 /* IniciarSesion.swift */,
 				A08B1A3B2CE1615400D2EAA3 /* DashboardViewController.swift */,
 				C02CE3DB2CCEC0A400A48F52 /* Main.storyboard */,
@@ -171,6 +174,7 @@
 				A0E8D5BB2D03E906003DB725 /* IniciarSesion.swift in Sources */,
 				A0E8D5E62D03FBF0003DB725 /* TabBarViewController.swift in Sources */,
 				C00BF5142CDB52ED0099B9A7 /* User.swift in Sources */,
+				A0A519932D08C2AE007C7549 /* SplashViewController.swift in Sources */,
 				A0A25E642CDDD75B001E1C54 /* HomeViewController.swift in Sources */,
 				C0FB97C32CD37F130075B790 /* AccessViewController.swift in Sources */,
 				C0AAD4CB2CDBFAEA005467CA /* ApiExampleViewController.swift in Sources */,
